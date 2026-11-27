@@ -1,8 +1,3 @@
 name = "painel-tabacaria"
 compatibility_date = "2026-11-27"
-pages_build_output_dir = "./public"
-
-[[d1_databases]]
-binding = "DB"
-database_name = "papato-painel"
-database_id = "COLOQUE-AQUI-O-ID-DO-D1"
+pages_build_output_dir = "."

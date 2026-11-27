@@ -1,0 +1,1082 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#0b0b0e" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Papato Gestão" />
+  <title>Papato Gestão — Painel Executivo & PDV</title>
+  <link id="appleTouchIcon" rel="apple-touch-icon" href="assets/img/logo.png" />
+  <style>
+    :root {
+      --bg: #09090c;
+      --panel: rgba(17, 17, 22, 0.82);
+      --panel-strong: rgba(22, 22, 29, 0.92);
+      --border: rgba(250, 204, 21, 0.22);
+      --border-soft: rgba(255, 255, 255, 0.08);
+      --gold: #facc15;
+      --gold-deep: #ca8a04;
+      --text: #f4f4f6;
+      --muted: #a1a1aa;
+      --ok: #22c55e;
+      --warn: #f59e0b;
+      --bad: #ef4444;
+      --radius: 16px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      min-height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      overflow-x: hidden;
+    }
+
+    #smokeCanvas {
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .app-shell {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: 270px 1fr;
+      min-height: 100vh;
+      padding-top: env(safe-area-inset-top);
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+
+    .sidebar {
+      background: var(--panel);
+      backdrop-filter: blur(14px);
+      border-right: 1px solid var(--border-soft);
+      padding: 20px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+    }
+
+    .brand-box {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px;
+      border-radius: var(--radius);
+      background: rgba(250, 204, 21, 0.07);
+      border: 1px solid var(--border);
+    }
+
+    .brand-logo-wrap {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      background: #121217;
+      border: 1px solid rgba(250, 204, 21, 0.45);
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    .brand-logo-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: none;
+    }
+
+    .brand-logo-wrap.has-img img {
+      display: block;
+    }
+
+    .brand-logo-wrap.has-img .fallback-emblem {
+      display: none;
+    }
+
+    .brand-title {
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--gold);
+      letter-spacing: 0.02em;
+    }
+
+    .brand-sub {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .nav-list {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .nav-btn {
+      width: 100%;
+      text-align: left;
+      border: 1px solid transparent;
+      background: transparent;
+      color: var(--text);
+      padding: 10px 12px;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: background 0.15s ease, border-color 0.15s ease;
+    }
+
+    .nav-btn:hover {
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .nav-btn.active {
+      background: rgba(250, 204, 21, 0.14);
+      border-color: var(--border);
+      color: var(--gold);
+    }
+
+    .main-area {
+      padding: 20px 24px 48px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      max-width: 1400px;
+      width: 100%;
+    }
+
+    .topbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      background: var(--panel);
+      backdrop-filter: blur(14px);
+      border: 1px solid var(--border-soft);
+      border-radius: var(--radius);
+      padding: 14px 18px;
+    }
+
+    .mobile-brand {
+      display: none;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .topbar-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .btn {
+      border: 1px solid var(--border);
+      background: var(--panel-strong);
+      color: var(--text);
+      padding: 8px 14px;
+      border-radius: 10px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .btn-gold {
+      background: var(--gold);
+      color: #111;
+      border-color: var(--gold);
+    }
+
+    .grid-kpis {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(185px, 1fr));
+      gap: 14px;
+    }
+
+    .card {
+      background: var(--panel);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border-soft);
+      border-radius: var(--radius);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .kpi-label {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .kpi-value {
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--gold);
+    }
+
+    .module-panel {
+      display: none;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .module-panel.active {
+      display: flex;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 16px;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 10px;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      background: rgba(10, 10, 14, 0.85);
+      border: 1px solid var(--border-soft);
+      color: var(--text);
+      border-radius: 10px;
+      padding: 9px 11px;
+      font-size: 13px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    th, td {
+      padding: 9px 8px;
+      border-bottom: 1px solid var(--border-soft);
+      text-align: left;
+    }
+
+    th {
+      color: var(--muted);
+      font-size: 11px;
+      text-transform: uppercase;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+      background: rgba(250, 204, 21, 0.14);
+      color: var(--gold);
+    }
+
+    .lock-screen {
+      position: fixed;
+      inset: 0;
+      z-index: 50;
+      background: rgba(9, 9, 12, 0.96);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .lock-screen.open {
+      display: flex;
+    }
+
+    .lock-box {
+      width: 100%;
+      max-width: 360px;
+      background: var(--panel-strong);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      text-align: center;
+    }
+
+    @media (max-width: 860px) {
+      .app-shell {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        position: static;
+        height: auto;
+        border-right: none;
+        border-bottom: 1px solid var(--border-soft);
+      }
+
+      .nav-list {
+        flex-direction: row;
+        overflow-x: auto;
+        padding-bottom: 4px;
+      }
+
+      .nav-btn {
+        width: auto;
+        white-space: nowrap;
+      }
+
+      .main-area {
+        padding: 14px 14px 40px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <canvas id="smokeCanvas" aria-hidden="true"></canvas>
+
+  <div class="lock-screen" id="lockScreen">
+    <div class="lock-box">
+      <div style="display:flex;justify-content:center;">
+        <div class="brand-logo-wrap" data-logo-box>
+          <svg class="fallback-emblem" width="28" height="28" viewBox="0 0 32 32" fill="none">
+            <polygon points="16,3 28,10 28,22 16,29 4,22 4,10" stroke="#facc15" stroke-width="2.2" fill="rgba(250,204,21,0.12)"/>
+            <text x="16" y="20" text-anchor="middle" fill="#facc15" font-size="12" font-weight="800">P</text>
+          </svg>
+          <img data-logo-img alt="Logo Papato Tabacaria" />
+        </div>
+      </div>
+      <h2>Papato Gestão — PIN</h2>
+      <p class="kpi-label">Digite o PIN administrativo (padrão inicial: 4200)</p>
+      <input type="password" id="pinInput" inputmode="numeric" placeholder="PIN" />
+      <button class="btn btn-gold" id="unlockBtn" type="button">Entrar no Painel</button>
+    </div>
+  </div>
+
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand-box">
+        <div class="brand-logo-wrap" data-logo-box>
+          <svg class="fallback-emblem" width="28" height="28" viewBox="0 0 32 32" fill="none">
+            <polygon points="16,3 28,10 28,22 16,29 4,22 4,10" stroke="#facc15" stroke-width="2.2" fill="rgba(250,204,21,0.12)"/>
+            <text x="16" y="20" text-anchor="middle" fill="#facc15" font-size="12" font-weight="800">P</text>
+          </svg>
+          <img data-logo-img alt="Logo Papato Tabacaria" />
+        </div>
+        <div>
+          <div class="brand-title">PAPATO GESTÃO</div>
+          <div class="brand-sub">Tabacaria • ERP & PDV</div>
+        </div>
+      </div>
+
+      <nav class="nav-list" id="navMenu">
+        <button class="nav-btn active" data-mod="dashboard" type="button">1. Dashboard</button>
+        <button class="nav-btn" data-mod="pdv" type="button">2. Caixa e PDV</button>
+        <button class="nav-btn" data-mod="financeiro" type="button">3. Financeiro</button>
+        <button class="nav-btn" data-mod="estoque" type="button">4. Estoque</button>
+        <button class="nav-btn" data-mod="produtos" type="button">5. Produtos e Preços</button>
+        <button class="nav-btn" data-mod="vendas" type="button">6. Vendas e Pedidos</button>
+        <button class="nav-btn" data-mod="clientes" type="button">7. Clientes — CRM</button>
+        <button class="nav-btn" data-mod="fornecedores" type="button">8. Fornecedores</button>
+        <button class="nav-btn" data-mod="integracao" type="button">9. Integração Site</button>
+        <button class="nav-btn" data-mod="relatorios" type="button">10. Relatórios</button>
+        <button class="nav-btn" data-mod="config" type="button">11. Configurações</button>
+      </nav>
+    </aside>
+
+    <main class="main-area">
+      <header class="topbar">
+        <div>
+          <h1 id="pageTitle" style="font-size:18px;">1. Dashboard — Visão geral</h1>
+          <span class="kpi-label" id="syncClock">Sincronizado localmente</span>
+        </div>
+        <div class="topbar-actions">
+          <button class="btn" id="toggleSmokeBtn" type="button">Neblina: ON</button>
+          <button class="btn" id="lockBtn" type="button">Bloquear PIN</button>
+          <button class="btn btn-gold" id="exportJsonBtn" type="button">Backup JSON</button>
+        </div>
+      </header>
+
+      <!-- 1. DASHBOARD -->
+      <section class="module-panel active" id="mod-dashboard">
+        <div class="grid-kpis" id="kpiGrid"></div>
+        <div class="grid-2">
+          <div class="card">
+            <h3>Produtos mais vendidos</h3>
+            <table>
+              <thead><tr><th>Produto</th><th>Qtd</th><th>Receita</th></tr></thead>
+              <tbody id="topProductsBody"></tbody>
+            </table>
+          </div>
+          <div class="card">
+            <h3>Alertas e metas do mês</h3>
+            <div id="alertsList" style="display:flex;flex-direction:column;gap:8px;font-size:13px;"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 2. CAIXA E PDV -->
+      <section class="module-panel" id="mod-pdv">
+        <div class="grid-2">
+          <div class="card">
+            <h3>Status do Caixa & Movimentação</h3>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+              <button class="btn btn-gold" id="openCashBtn" type="button">Abrir Caixa</button>
+              <button class="btn" id="closeCashBtn" type="button">Fechar Caixa</button>
+              <span class="badge" id="cashStatusBadge">Caixa Fechado</span>
+            </div>
+            <form id="cashMoveForm" class="form-row">
+              <select id="cashMoveType">
+                <option value="entrada">Entrada</option>
+                <option value="sangria">Sangria</option>
+                <option value="suprimento">Suprimento</option>
+              </select>
+              <input type="number" step="0.01" id="cashMoveAmount" placeholder="Valor (R$)" required />
+              <input type="text" id="cashMoveNote" placeholder="Motivo / obs" />
+              <button class="btn btn-gold" type="submit">Registrar</button>
+            </form>
+          </div>
+
+          <div class="card">
+            <h3>Venda Rápida (PDV Presencial)</h3>
+            <form id="pdvSaleForm" class="form-row">
+              <select id="pdvProductSelect"></select>
+              <input type="number" min="1" value="1" id="pdvQty" placeholder="Qtd" required />
+              <select id="pdvPayment">
+                <option value="Pix">Pix</option>
+                <option value="Dinheiro">Dinheiro</option>
+                <option value="Cartão">Cartão</option>
+              </select>
+              <input type="text" id="pdvCustomer" placeholder="Cliente (opcional)" />
+              <button class="btn btn-gold" type="submit">Lançar Venda</button>
+            </form>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Histórico de operações do caixa</h3>
+          <table>
+            <thead><tr><th>Hora</th><th>Tipo</th><th>Detalhe</th><th>Valor</th></tr></thead>
+            <tbody id="cashHistoryBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- 3. FINANCEIRO -->
+      <section class="module-panel" id="mod-financeiro">
+        <div class="card">
+          <h3>Lançamento Financeiro & Fluxo de Caixa</h3>
+          <form id="finForm" class="form-row">
+            <select id="finKind">
+              <option value="receita">Receita</option>
+              <option value="despesa_fixa">Despesa Fixa</option>
+              <option value="despesa_variavel">Despesa Variável</option>
+            </select>
+            <input type="text" id="finDesc" placeholder="Descrição (ex.: Luz, Fornecedor)" required />
+            <input type="number" step="0.01" id="finVal" placeholder="Valor (R$)" required />
+            <button class="btn btn-gold" type="submit">Adicionar</button>
+          </form>
+        </div>
+        <div class="card" id="dreSummary"></div>
+        <div class="card">
+          <table>
+            <thead><tr><th>Tipo</th><th>Descrição</th><th>Valor</th></tr></thead>
+            <tbody id="finBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- 4. ESTOQUE -->
+      <section class="module-panel" id="mod-estoque">
+        <div class="card">
+          <h3>Ajuste de Estoque / Inventário</h3>
+          <form id="stockAdjustForm" class="form-row">
+            <select id="stockProductSelect"></select>
+            <input type="number" id="stockDelta" placeholder="+/- Qtd (ex.: 10 ou -2)" required />
+            <input type="text" id="stockReason" placeholder="Motivo (compra, perda, ajuste)" required />
+            <button class="btn btn-gold" type="submit">Aplicar</button>
+          </form>
+        </div>
+        <div class="card">
+          <table>
+            <thead><tr><th>Produto</th><th>SKU</th><th>Saldo</th><th>Mínimo</th><th>Custo Total</th><th>Status</th></tr></thead>
+            <tbody id="stockBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- 5. PRODUTOS E PRECIFICAÇÃO -->
+      <section class="module-panel" id="mod-produtos">
+        <div class="card">
+          <h3>Cadastrar / Atualizar Produto</h3>
+          <form id="productForm" class="form-row">
+            <input type="text" id="prodName" placeholder="Nome do produto" required />
+            <input type="text" id="prodSku" placeholder="SKU / Código" />
+            <input type="text" id="prodCat" placeholder="Categoria (ex.: Sedas)" required />
+            <input type="number" step="0.01" id="prodCost" placeholder="Custo (R$)" required />
+            <input type="number" step="0.01" id="prodPrice" placeholder="Venda (R$)" required />
+            <input type="number" id="prodStock" placeholder="Estoque inicial" value="10" required />
+            <button class="btn btn-gold" type="submit">Salvar Produto</button>
+          </form>
+        </div>
+        <div class="card">
+          <table>
+            <thead><tr><th>Produto</th><th>SKU</th><th>Custo</th><th>Venda</th><th>Margem</th><th>Estoque</th></tr></thead>
+            <tbody id="productsCatalogBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- 6. VENDAS E PEDIDOS -->
+      <section class="module-panel" id="mod-vendas">
+        <div class="card">
+          <h3>Vendas e Pedidos (Site & Presencial)</h3>
+          <table>
+            <thead><tr><th>ID</th><th>Origem</th><th>Cliente</th><th>Pgto</th><th>Total</th><th>Status</th><th>Ação</th></tr></thead>
+            <tbody id="salesBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- 7. CLIENTES — CRM -->
+      <section class="module-panel" id="mod-clientes">
+        <div class="card">
+          <h3>Cadastro de Cliente (Clube Papato)</h3>
+          <form id="crmForm" class="form-row">
+            <input type="text" id="crmName" placeholder="Nome do cliente" required />
+            <input type="text" id="crmPhone" placeholder="WhatsApp (com DDD)" required />
+            <input type="text" id="crmNote" placeholder="Preferência / observação" />
+            <button class="btn btn-gold" type="submit">Salvar Cliente</button>
+          </form>
+        </div>
+        <div class="card">
+          <table>
+            <thead><tr><th>Cliente</th><th>WhatsApp</th><th>Compras</th><th>Total Gasto</th><th>Obs</th></tr></thead>
+            <tbody id="crmBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- 8. FORNECEDORES -->
+      <section class="module-panel" id="mod-fornecedores">
+        <div class="card">
+          <h3>Fornecedores e Compras</h3>
+          <form id="supForm" class="form-row">
+            <input type="text" id="supName" placeholder="Nome do fornecedor" required />
+            <input type="text" id="supItem" placeholder="Produto / nota" required />
+            <input type="number" step="0.01" id="supTotal" placeholder="Valor compra (R$)" required />
+            <button class="btn btn-gold" type="submit">Registrar Compra</button>
+          </form>
+        </div>
+        <div class="card">
+          <table>
+            <thead><tr><th>Fornecedor</th><th>Item / Nota</th><th>Valor</th></tr></thead>
+            <tbody id="supBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- 9. INTEGRAÇÃO COM O SITE -->
+      <section class="module-panel" id="mod-integracao">
+        <div class="card">
+          <h3>Importar Pedido Colado do WhatsApp (Site)</h3>
+          <p class="kpi-label">Cole a mensagem do pedido recebido pelo site para lançar em Vendas e dar baixa no estoque.</p>
+          <textarea id="waOrderInput" rows="5" placeholder="Ex.: Salve, Papato! ...&#10;• 2x Seda Sadhu King Size — R$ 3,80&#10;Nome: João&#10;WhatsApp: +5571999999999"></textarea>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <button class="btn btn-gold" id="importWaBtn" type="button">Importar Pedido para Vendas</button>
+            <button class="btn" id="syncCatalogBtn" type="button">Sincronizar Catálogo Local</button>
+          </div>
+          <div id="syncLog" style="font-size:12px;color:var(--gold);"></div>
+        </div>
+      </section>
+
+      <!-- 10. RELATÓRIOS E INTELIGÊNCIA -->
+      <section class="module-panel" id="mod-relatorios">
+        <div class="card">
+          <h3>Curva ABC e Inteligência de Produtos</h3>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <button class="btn btn-gold" id="exportCsvBtn" type="button">Exportar CSV (Excel)</button>
+            <button class="btn" id="printReportBtn" type="button">Imprimir / Salvar PDF</button>
+          </div>
+          <table>
+            <thead><tr><th>Produto</th><th>Receita Gerada</th><th>Participação</th><th>Curva ABC</th></tr></thead>
+            <tbody id="abcBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- 11. CONFIGURAÇÕES E SEGURANÇA -->
+      <section class="module-panel" id="mod-config">
+        <div class="card">
+          <h3>Configurações da Loja & Segurança</h3>
+          <div class="form-row">
+            <input type="text" id="cfgStoreName" placeholder="Nome da tabacaria" />
+            <input type="number" step="0.01" id="cfgGoal" placeholder="Meta mensal (R$)" />
+            <input type="text" id="cfgPin" placeholder="Novo PIN de bloqueio" />
+            <button class="btn btn-gold" id="saveCfgBtn" type="button">Salvar Configurações</button>
+          </div>
+          <h4 style="margin-top:8px;">Registro de atividades recentes</h4>
+          <ul id="auditList" style="padding-left:18px;font-size:12px;color:var(--muted);display:flex;flex-direction:column;gap:4px;"></ul>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    (() => {
+      "use strict";
+      const STORAGE_KEY = "papato_gestao_v1";
+      const LOGO_URLS = [
+        "assets/img/logo.png",
+        "https://papatotabacaria.pages.dev/assets/img/logo.png"
+      ];
+
+      const defaultState = {
+        config: { storeName: "Papato Tabacaria", monthlyGoal: 6000, pin: "4200", smokeOn: true },
+        cashOpen: false,
+        cashHistory: [],
+        products: [
+          { id: "p1", name: "Seda Sadhu King Size", sku: "SED-SAD-KS", category: "Sedas", cost: 0.75, price: 1.90, stock: 65, minStock: 15, soldQty: 28 },
+          { id: "p2", name: "Piteira de Vidro Esfera", sku: "PIT-VID-ESF", category: "Piteiras", cost: 8.50, price: 19.90, stock: 12, minStock: 5, soldQty: 11 },
+          { id: "p3", name: "Bandeja Bros (Média)", sku: "BAN-BRO-MED", category: "Bandejas", cost: 14.00, price: 29.90, stock: 6, minStock: 3, soldQty: 7 },
+          { id: "p4", name: "Dichavador Tonabê", sku: "DIC-TON-01", category: "Dichavadores", cost: 5.50, price: 12.90, stock: 18, minStock: 6, soldQty: 14 }
+        ],
+        finance: [
+          { kind: "despesa_fixa", desc: "Internet / Operação", val: 120 }
+        ],
+        sales: [
+          { id: "PED-101", origin: "Site", customer: "Cliente Teste", payment: "Pix", total: 39.80, status: "Entregue", items: [] }
+        ],
+        customers: [
+          { name: "Cliente Teste", phone: "71999999999", orders: 1, spent: 39.80, note: "Prefere sedas e piteiras" }
+        ],
+        suppliers: [
+          { name: "Distribuidora Central", item: "Sedas e Piteiras", total: 320 }
+        ],
+        audit: ["Painel inicializado com dados base da Papato Tabacaria."]
+      };
+
+      let state = loadState();
+
+      function loadState() {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (!raw) return structuredClone(defaultState);
+          return { ...structuredClone(defaultState), ...JSON.parse(raw), config: { ...defaultState.config, ...(JSON.parse(raw).config || {}) } };
+        } catch {
+          return structuredClone(defaultState);
+        }
+      }
+
+      function saveState(logMsg) {
+        if (logMsg) state.audit.unshift(`${new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })} — ${logMsg}`);
+        state.audit = state.audit.slice(0, 30);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        renderAll();
+      }
+
+      const brl = (v) => Number(v || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+
+      // Logo com tentativa automática e fallback seguro
+      function initLogo() {
+        const imgs = document.querySelectorAll("[data-logo-img]");
+        const boxes = document.querySelectorAll("[data-logo-box]");
+        let idx = 0;
+
+        function tryNext() {
+          if (idx >= LOGO_URLS.length) return;
+          const testImg = new Image();
+          const url = LOGO_URLS[idx++];
+          testImg.onload = () => {
+            imgs.forEach((img) => { img.src = url; });
+            boxes.forEach((box) => box.classList.add("has-img"));
+            const iconLink = document.getElementById("appleTouchIcon");
+            if (iconLink) iconLink.href = url;
+          };
+          testImg.onerror = tryNext;
+          testImg.src = url;
+        }
+        tryNext();
+      }
+
+      // Neblina / fumaça em Canvas
+      const canvas = document.getElementById("smokeCanvas");
+      const ctx = canvas.getContext("2d");
+      const puffs = Array.from({ length: 24 }, (_, i) => ({
+        x: Math.random(),
+        y: Math.random(),
+        r: 140 + (i % 5) * 55,
+        vx: (Math.random() - 0.5) * 0.00028,
+        vy: -0.00012 - Math.random() * 0.00018,
+        gold: i % 4 === 0
+      }));
+
+      function resizeCanvas() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+      }
+      window.addEventListener("resize", resizeCanvas);
+      resizeCanvas();
+
+      function drawSmoke() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        if (state.config.smokeOn) {
+          for (const p of puffs) {
+            p.x += p.vx;
+            p.y += p.vy;
+            if (p.y < -0.2) p.y = 1.15;
+            if (p.x < -0.2) p.x = 1.2;
+            if (p.x > 1.2) p.x = -0.2;
+
+            const cx = p.x * canvas.width;
+            const cy = p.y * canvas.height;
+            const grad = ctx.createRadialGradient(cx, cy, 10, cx, cy, p.r);
+            if (p.gold) {
+              grad.addColorStop(0, "rgba(250, 204, 21, 0.09)");
+              grad.addColorStop(1, "rgba(250, 204, 21, 0)");
+            } else {
+              grad.addColorStop(0, "rgba(212, 212, 216, 0.08)");
+              grad.addColorStop(1, "rgba(212, 212, 216, 0)");
+            }
+            ctx.fillStyle = grad;
+            ctx.beginPath();
+            ctx.arc(cx, cy, p.r, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        }
+        requestAnimationFrame(drawSmoke);
+      }
+      drawSmoke();
+
+      // Navegação entre módulos
+      const titles = {
+        dashboard: "1. Dashboard — Visão geral",
+        pdv: "2. Caixa e PDV",
+        financeiro: "3. Financeiro",
+        estoque: "4. Estoque",
+        produtos: "5. Produtos e Precificação",
+        vendas: "6. Vendas e Pedidos",
+        clientes: "7. Clientes — CRM",
+        fornecedores: "8. Fornecedores e Compras",
+        integracao: "9. Integração com o Site",
+        relatorios: "10. Relatórios e Inteligência",
+        config: "11. Configurações e Segurança"
+      };
+
+      document.getElementById("navMenu").addEventListener("click", (e) => {
+        const btn = e.target.closest("[data-mod]");
+        if (!btn) return;
+        const mod = btn.dataset.mod;
+        document.querySelectorAll(".nav-btn").forEach((b) => b.classList.toggle("active", b === btn));
+        document.querySelectorAll(".module-panel").forEach((p) => p.classList.toggle("active", p.id === `mod-${mod}`));
+        document.getElementById("pageTitle").textContent = titles[mod] || "Papato Gestão";
+      });
+
+      function renderAll() {
+        document.getElementById("toggleSmokeBtn").textContent = `Neblina: ${state.config.smokeOn ? "ON" : "OFF"}`;
+        document.getElementById("syncClock").textContent = `${state.config.storeName} • Atualizado às ${new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}`;
+
+        const totalSales = state.sales.filter((s) => s.status !== "Cancelado").reduce((acc, s) => acc + Number(s.total || 0), 0);
+        const totalCost = state.products.reduce((acc, p) => acc + Number(p.cost || 0) * Number(p.soldQty || 0), 0);
+        const expenses = state.finance.filter((f) => f.kind !== "receita").reduce((acc, f) => acc + Number(f.val || 0), 0);
+        const extraRev = state.finance.filter((f) => f.kind === "receita").reduce((acc, f) => acc + Number(f.val || 0), 0);
+        const grossProfit = totalSales - totalCost;
+        const netProfit = grossProfit + extraRev - expenses;
+        const pendingOrders = state.sales.filter((s) => s.status === "Pendente").length;
+
+        document.getElementById("kpiGrid").innerHTML = [
+          ["Faturamento Total", brl(totalSales)],
+          ["Lucro Bruto Est.", brl(grossProfit)],
+          ["Lucro Líquido Est.", brl(netProfit)],
+          ["Pedidos Pendentes", String(pendingOrders)]
+        ].map(([label, val]) => `<div class="card"><span class="kpi-label">${label}</span><span class="kpi-value">${val}</span></div>`).join("");
+
+        const sortedProds = [...state.products].sort((a, b) => (b.soldQty || 0) - (a.soldQty || 0));
+        document.getElementById("topProductsBody").innerHTML = sortedProds.map((p) =>
+          `<tr><td>${p.name}</td><td>${p.soldQty || 0}</td><td>${brl((p.soldQty || 0) * p.price)}</td></tr>`
+        ).join("");
+
+        const lowStock = state.products.filter((p) => p.stock <= p.minStock);
+        const goalPct = Math.min(100, Math.round((totalSales / (state.config.monthlyGoal || 1)) * 100));
+        document.getElementById("alertsList").innerHTML = [
+          `<div>Meta mensal (${brl(state.config.monthlyGoal)}): <strong>${goalPct}%</strong> atingido</div>`,
+          lowStock.length
+            ? `<div style="color:var(--warn)">Estoque baixo em: ${lowStock.map((p) => `${p.name} (${p.stock})`).join(", ")}</div>`
+            : `<div style="color:var(--ok)">Todos os produtos acima do estoque mínimo.</div>`
+        ].join("");
+
+        // Selects de PDV e Estoque
+        const prodOpts = state.products.map((p) => `<option value="${p.id}">${p.name} (${brl(p.price)}) — Est: ${p.stock}</option>`).join("");
+        document.getElementById("pdvProductSelect").innerHTML = prodOpts;
+        document.getElementById("stockProductSelect").innerHTML = prodOpts;
+
+        // Caixa
+        const badge = document.getElementById("cashStatusBadge");
+        badge.textContent = state.cashOpen ? "Caixa Aberto" : "Caixa Fechado";
+        document.getElementById("cashHistoryBody").innerHTML = state.cashHistory.map((h) =>
+          `<tr><td>${h.time}</td><td>${h.type}</td><td>${h.note || "-"}</td><td>${brl(h.amount)}</td></tr>`
+        ).join("") || `<tr><td colspan="4">Nenhuma operação registrada hoje.</td></tr>`;
+
+        // Financeiro
+        document.getElementById("dreSummary").innerHTML = `<strong>Resumo Gerencial:</strong> Receitas Operacionais ${brl(totalSales + extraRev)} | Despesas ${brl(expenses)} | Resultado Estimado ${brl(netProfit)}`;
+        document.getElementById("finBody").innerHTML = state.finance.map((f) =>
+          `<tr><td>${f.kind}</td><td>${f.desc}</td><td>${brl(f.val)}</td></tr>`
+        ).join("");
+
+        // Estoque
+        document.getElementById("stockBody").innerHTML = state.products.map((p) =>
+          `<tr><td>${p.name}</td><td>${p.sku || "-"}</td><td>${p.stock}</td><td>${p.minStock}</td><td>${brl(p.stock * p.cost)}</td><td>${p.stock <= p.minStock ? '<span class="badge">Repor</span>' : "OK"}</td></tr>`
+        ).join("");
+
+        // Produtos
+        document.getElementById("productsCatalogBody").innerHTML = state.products.map((p) => {
+          const margin = p.price > 0 ? Math.round(((p.price - p.cost) / p.price) * 100) : 0;
+          return `<tr><td>${p.name}</td><td>${p.sku || "-"}</td><td>${brl(p.cost)}</td><td>${brl(p.price)}</td><td>${margin}%</td><td>${p.stock}</td></tr>`;
+        }).join("");
+
+        // Vendas
+        document.getElementById("salesBody").innerHTML = state.sales.map((s, idx) =>
+          `<tr><td>${s.id}</td><td>${s.origin}</td><td>${s.customer}</td><td>${s.payment}</td><td>${brl(s.total)}</td><td>${s.status}</td><td><button class="btn" data-toggle-sale="${idx}" type="button">Avançar status</button></td></tr>`
+        ).join("");
+
+        // CRM
+        document.getElementById("crmBody").innerHTML = state.customers.map((c) =>
+          `<tr><td>${c.name}</td><td>${c.phone}</td><td>${c.orders}</td><td>${brl(c.spent)}</td><td>${c.note || "-"}</td></tr>`
+        ).join("");
+
+        // Fornecedores
+        document.getElementById("supBody").innerHTML = state.suppliers.map((sup) =>
+          `<tr><td>${sup.name}</td><td>${sup.item}</td><td>${brl(sup.total)}</td></tr>`
+        ).join("");
+
+        // Curva ABC
+        const sumRev = sortedProds.reduce((a, b) => a + (b.soldQty || 0) * b.price, 0) || 1;
+        let accPct = 0;
+        document.getElementById("abcBody").innerHTML = sortedProds.map((p) => {
+          const rev = (p.soldQty || 0) * p.price;
+          const pct = (rev / sumRev) * 100;
+          accPct += pct;
+          const curve = accPct <= 70 ? "A" : accPct <= 90 ? "B" : "C";
+          return `<tr><td>${p.name}</td><td>${brl(rev)}</td><td>${pct.toFixed(1)}%</td><td><span class="badge">Curva ${curve}</span></td></tr>`;
+        }).join("");
+
+        // Config e Auditoria
+        document.getElementById("cfgStoreName").value = state.config.storeName;
+        document.getElementById("cfgGoal").value = state.config.monthlyGoal;
+        document.getElementById("cfgPin").value = state.config.pin;
+        document.getElementById("auditList").innerHTML = state.audit.map((a) => `<li>${a}</li>`).join("");
+      }
+
+      // Eventos
+      document.getElementById("toggleSmokeBtn").addEventListener("click", () => {
+        state.config.smokeOn = !state.config.smokeOn;
+        saveState(`Neblina ${state.config.smokeOn ? "ativada" : "pausada"}`);
+      });
+
+      document.getElementById("lockBtn").addEventListener("click", () => {
+        document.getElementById("lockScreen").classList.add("open");
+      });
+
+      document.getElementById("unlockBtn").addEventListener("click", () => {
+        const val = document.getElementById("pinInput").value.trim();
+        if (val === state.config.pin) {
+          document.getElementById("pinInput").value = "";
+          document.getElementById("lockScreen").classList.remove("open");
+        } else {
+          alert("PIN incorreto.");
+        }
+      });
+
+      document.getElementById("openCashBtn").addEventListener("click", () => {
+        state.cashOpen = true;
+        state.cashHistory.unshift({ time: new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }), type: "Abertura", note: "Caixa aberto", amount: 0 });
+        saveState("Caixa aberto");
+      });
+
+      document.getElementById("closeCashBtn").addEventListener("click", () => {
+        state.cashOpen = false;
+        state.cashHistory.unshift({ time: new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }), type: "Fechamento", note: "Caixa fechado", amount: 0 });
+        saveState("Caixa fechado");
+      });
+
+      document.getElementById("cashMoveForm").addEventListener("submit", (e) => {
+        e.preventDefault();
+        const type = document.getElementById("cashMoveType").value;
+        const amount = Number(document.getElementById("cashMoveAmount").value);
+        const note = document.getElementById("cashMoveNote").value.trim();
+        state.cashHistory.unshift({ time: new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }), type, note, amount });
+        e.target.reset();
+        saveState(`Caixa: ${type} de ${brl(amount)}`);
+      });
+
+      document.getElementById("pdvSaleForm").addEventListener("submit", (e) => {
+        e.preventDefault();
+        const prod = state.products.find((p) => p.id === document.getElementById("pdvProductSelect").value);
+        const qty = Math.max(1, Number(document.getElementById("pdvQty").value));
+        const payment = document.getElementById("pdvPayment").value;
+        const customer = document.getElementById("pdvCustomer").value.trim() || "Balcão";
+        if (!prod) return;
+        prod.stock = Math.max(0, prod.stock - qty);
+        prod.soldQty = (prod.soldQty || 0) + qty;
+        const total = prod.price * qty;
+        state.sales.unshift({ id: `PDV-${Math.floor(100 + Math.random() * 899)}`, origin: "Presencial", customer, payment, total, status: "Concluído" });
+        state.cashHistory.unshift({ time: new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }), type: `Venda (${payment})`, note: `${qty}x ${prod.name}`, amount: total });
+        e.target.reset();
+        saveState(`Venda PDV: ${qty}x ${prod.name} (${brl(total)})`);
+      });
+
+      document.getElementById("finForm").addEventListener("submit", (e) => {
+        e.preventDefault();
+        state.finance.unshift({
+          kind: document.getElementById("finKind").value,
+          desc: document.getElementById("finDesc").value.trim(),
+          val: Number(document.getElementById("finVal").value)
+        });
+        e.target.reset();
+        saveState("Lançamento financeiro adicionado");
+      });
+
+      document.getElementById("stockAdjustForm").addEventListener("submit", (e) => {
+        e.preventDefault();
+        const prod = state.products.find((p) => p.id === document.getElementById("stockProductSelect").value);
+        const delta = Number(document.getElementById("stockDelta").value);
+        const reason = document.getElementById("stockReason").value.trim();
+        if (!prod) return;
+        prod.stock = Math.max(0, prod.stock + delta);
+        e.target.reset();
+        saveState(`Estoque ${prod.name}: ${delta >= 0 ? "+" : ""}${delta} (${reason})`);
+      });
+
+      document.getElementById("productForm").addEventListener("submit", (e) => {
+        e.preventDefault();
+        state.products.push({
+          id: `p_${Date.now()}`,
+          name: document.getElementById("prodName").value.trim(),
+          sku: document.getElementById("prodSku").value.trim(),
+          category: document.getElementById("prodCat").value.trim(),
+          cost: Number(document.getElementById("prodCost").value),
+          price: Number(document.getElementById("prodPrice").value),
+          stock: Number(document.getElementById("prodStock").value),
+          minStock: 5,
+          soldQty: 0
+        });
+        e.target.reset();
+        saveState("Novo produto cadastrado");
+      });
+
+      document.getElementById("salesBody").addEventListener("click", (e) => {
+        const btn = e.target.closest("[data-toggle-sale]");
+        if (!btn) return;
+        const sale = state.sales[Number(btn.dataset.toggleSale)];
+        const flow = ["Pendente", "Preparando", "Entregue", "Cancelado"];
+        sale.status = flow[(flow.indexOf(sale.status) + 1) % flow.length];
+        saveState(`Pedido ${sale.id} -> ${sale.status}`);
+      });
+
+      document.getElementById("crmForm").addEventListener("submit", (e) => {
+        e.preventDefault();
+        state.customers.unshift({
+          name: document.getElementById("crmName").value.trim(),
+          phone: document.getElementById("crmPhone").value.trim(),
+          orders: 0,
+          spent: 0,
+          note: document.getElementById("crmNote").value.trim()
+        });
+        e.target.reset();
+        saveState("Cliente salvo no CRM");
+      });
+
+      document.getElementById("supForm").addEventListener("submit", (e) => {
+        e.preventDefault();
+        const total = Number(document.getElementById("supTotal").value);
+        const name = document.getElementById("supName").value.trim();
+        const item = document.getElementById("supItem").value.trim();
+        state.suppliers.unshift({ name, item, total });
+        state.finance.unshift({ kind: "despesa_variavel", desc: `Compra ${name} — ${item}`, val: total });
+        e.target.reset();
+        saveState(`Compra registrada: ${name} (${brl(total)})`);
+      });
+
+      document.getElementById("importWaBtn").addEventListener("click", () => {
+        const raw = document.getElementById("waOrderInput").value.trim();
+        if (!raw) return;
+        const nameMatch = raw.match(/Nome:\s*(.+)/i);
+        const phoneMatch = raw.match(/WhatsApp:\s*(.+)/i);
+        const totalMatch = raw.match(/Total estimado:\s*R\$\s*([\d.,]+)/i);
+        const total = totalMatch ? Number(totalMatch[1].replace(/\./g, "").replace(",", ".")) : 29.90;
+        const customer = nameMatch ? nameMatch[1].trim() : "Cliente Site";
+        const phone = phoneMatch ? phoneMatch[1].trim() : "";
+
+        state.sales.unshift({
+          id: `SITE-${Math.floor(100 + Math.random() * 899)}`,
+          origin: "Site",
+          customer,
+          payment: "A combinar",
+          total,
+          status: "Pendente"
+        });
+        if (phone) {
+          state.customers.unshift({ name: customer, phone, orders: 1, spent: total, note: "Pedido via site" });
+        }
+        document.getElementById("waOrderInput").value = "";
+        document.getElementById("syncLog").textContent = `Pedido importado para ${customer} (${brl(total)}).`;
+        saveState(`Pedido do site importado: ${customer}`);
+      });
+
+      document.getElementById("syncCatalogBtn").addEventListener("click", () => {
+        document.getElementById("syncLog").textContent = `Catálogo local verificado (${state.products.length} itens ativos).`;
+        saveState("Sincronização de catálogo executada");
+      });
+
+      document.getElementById("exportCsvBtn").addEventListener("click", () => {
+        const rows = ["ID,Origem,Cliente,Pagamento,Total,Status", ...state.sales.map((s) => `${s.id},"${s.origin}","${s.customer}","${s.payment}",${s.total},"${s.status}"`)];
+        const blob = new Blob([rows.join("\n")], { type: "text/csv;charset=utf-8;" });
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = "papato-vendas.csv";
+        a.click();
+      });
+
+      document.getElementById("printReportBtn").addEventListener("click", () => window.print());
+
+      document.getElementById("exportJsonBtn").addEventListener("click", () => {
+        const blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json" });
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = "papato-backup.json";
+        a.click();
+      });
+
+      document.getElementById("saveCfgBtn").addEventListener("click", () => {
+        state.config.storeName = document.getElementById("cfgStoreName").value.trim() || "Papato Tabacaria";
+        state.config.monthlyGoal = Number(document.getElementById("cfgGoal").value) || 6000;
+        state.config.pin = document.getElementById("cfgPin").value.trim() || "4200";
+        saveState("Configurações atualizadas");
+      });
+
+      initLogo();
+      renderAll();
+    })();
+  </script>
+</body>
+</html>

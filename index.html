@@ -47,7 +47,6 @@
       overflow-x: hidden;
     }
 
-    /* Fumaça em camadas no fundo */
     #smokeCanvas {
       position: fixed;
       inset: 0;
@@ -75,16 +74,18 @@
         linear-gradient(180deg, rgba(7, 7, 9, 0.18) 0%, rgba(7, 7, 9, 0.46) 100%);
     }
 
-    /* Tela de bloqueio por PIN */
+    /* Tela de bloqueio por PIN centralizada */
     #lockScreen {
       position: fixed;
       inset: 0;
-      z-index: 999;
+      width: 100vw;
+      height: 100vh;
+      z-index: 9999;
       display: none;
       align-items: center;
       justify-content: center;
       padding: 20px;
-      background: rgba(7, 7, 9, 0.92);
+      background: rgba(7, 7, 9, 0.94);
       backdrop-filter: blur(14px);
     }
 
@@ -153,7 +154,6 @@
       box-shadow: 0 0 0 3px rgba(245, 183, 0, 0.18);
     }
 
-    /* Layout principal */
     .app-shell {
       position: relative;
       z-index: 2;
@@ -161,7 +161,6 @@
       min-height: 100vh;
     }
 
-    /* Sidebar */
     .sidebar {
       width: var(--sidebar-w);
       flex-shrink: 0;
@@ -203,6 +202,7 @@
       width: 100%;
       height: 100%;
       object-fit: contain;
+      border-radius: 10px;
       filter: drop-shadow(0 3px 12px rgba(245, 183, 0, 0.38));
     }
 
@@ -278,7 +278,6 @@
       text-align: center;
     }
 
-    /* Área principal */
     .main-area {
       flex: 1;
       min-width: 0;
@@ -335,7 +334,6 @@
       gap: 8px;
     }
 
-    /* Botões */
     .btn {
       border: 1px solid var(--border-subtle);
       background: var(--bg-elevated);
@@ -374,7 +372,6 @@
       color: #ff9494;
     }
 
-    /* Botão moderno de importar arquivo */
     .file-upload-box {
       display: flex;
       flex-wrap: wrap;
@@ -402,7 +399,6 @@
       font-weight: 700;
     }
 
-    /* Banner com emblema P na aba Integração Site */
     .site-emblem-banner {
       display: flex;
       align-items: center;
@@ -428,6 +424,7 @@
       width: 100%;
       height: 100%;
       object-fit: contain;
+      border-radius: 10px;
       filter: drop-shadow(0 4px 14px rgba(245, 183, 0, 0.42));
     }
 
@@ -443,7 +440,6 @@
       display: block;
     }
 
-    /* KPIs */
     .kpi-grid {
       display: grid;
       grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -614,7 +610,6 @@
   </style>
 </head>
 <body>
-  <!-- SVG reutilizável do emblema P em estilo mel/colmeia -->
   <svg style="display:none" aria-hidden="true">
     <defs>
       <linearGradient id="papatoHoneyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -628,17 +623,14 @@
   <canvas id="smokeCanvas"></canvas>
   <div class="ambient-overlay"></div>
 
-  <!-- Tela PIN -->
-<div style="display:flex;align-items:center;gap:10px;padding:10px 8px 14px;border-bottom:1px solid rgba(245,183,0,0.2);margin-bottom:10px;">
-  <img src="logo-papato.png" alt="Papato Tabacaria" style="width:52px;height:52px;object-fit:contain;flex-shrink:0;" />
-  <div>
-    <div style="font-weight:900;color:#ffd43b;font-size:0.95rem;line-height:1.15;">PAPATO GESTÃO</div>
-    <div style="font-size:0.72rem;color:#b5ae9f;margin-top:2px;">Reino da Brisa • ERP &amp; PDV</div>
-  </div>
-</div>
+  <div id="lockScreen">
+    <div class="lock-card">
+      <div class="lock-emblem">
+        <img src="p-papato.jpg" alt="Emblema P Papato" onerror="this.style.display='none'" />
+      </div>
       <div class="lock-title">PAPATO GESTÃO</div>
-      <div class="lock-sub">Acesso restrito da administração • Reino da Brisa</div>
-      <input type="password" id="pinInput" class="pin-input" maxlength="8" placeholder="••••" inputmode="numeric" />
+      <div class="lock-sub">Acesso de administrador • PIN padrão: 4200</div>
+      <input type="password" id="pinInput" class="pin-input" maxlength="8" placeholder="••••" inputmode="numeric" onkeydown="if(event.key==='Enter') unlockApp()" />
       <button class="btn btn-gold" style="width:100%;justify-content:center;" onclick="unlockApp()">Entrar no Painel</button>
       <div id="pinError" style="color:var(--danger);font-size:0.8rem;margin-top:10px;min-height:18px;"></div>
     </div>
@@ -647,11 +639,10 @@
   <div id="mobileBackdrop" class="backdrop-mobile" onclick="toggleSidebar(false)"></div>
 
   <div class="app-shell">
-    <!-- Sidebar com os 11 módulos -->
     <aside id="sidebar" class="sidebar">
       <div class="brand-box">
         <div id="brandLogoWrap" class="brand-logo-wrap missing">
-          <img id="brandLogoImg" src="p-papato.png" alt="Emblema P Papato Tabacaria" onload="this.parentElement.classList.remove('missing')" onerror="this.parentElement.classList.add('missing')" />
+          <img id="brandLogoImg" src="p-papato.jpg" alt="Emblema P Papato Tabacaria" onload="this.parentElement.classList.remove('missing')" onerror="this.parentElement.classList.add('missing')" />
           <svg viewBox="0 0 80 80" fill="none">
             <path d="M18 12H48C61 12 68 19 68 30C68 41 61 48 48 48H33V68H18V12ZM33 23V37H46C51.5 37 54.5 34.2 54.5 30C54.5 25.8 51.5 23 46 23H33Z" fill="url(#papatoHoneyGrad)" stroke="#120d05" stroke-width="3" stroke-linejoin="round" />
             <circle cx="62" cy="56" r="6" fill="#ffd43b" />
@@ -683,7 +674,6 @@
       </div>
     </aside>
 
-    <!-- Conteúdo -->
     <main class="main-area">
       <header class="topbar">
         <div class="topbar-left">
@@ -701,7 +691,6 @@
         </div>
       </header>
 
-      <!-- 1. DASHBOARD -->
       <section id="mod-dashboard" class="module-section active">
         <div class="kpi-grid">
           <div class="kpi-card">
@@ -745,7 +734,6 @@
         </div>
       </section>
 
-      <!-- 2. CAIXA E PDV -->
       <section id="mod-pdv" class="module-section">
         <div class="panel">
           <div class="panel-title">2. Caixa e PDV — Nova Venda Rápida</div>
@@ -765,7 +753,6 @@
         </div>
       </section>
 
-      <!-- 3. FINANCEIRO -->
       <section id="mod-financeiro" class="module-section">
         <div class="panel">
           <div class="panel-title">3. Financeiro — Entradas e Saídas</div>
@@ -787,7 +774,6 @@
         </div>
       </section>
 
-      <!-- 4. ESTOQUE -->
       <section id="mod-estoque" class="module-section">
         <div class="panel">
           <div class="panel-title">4. Controle de Estoque</div>
@@ -800,7 +786,6 @@
         </div>
       </section>
 
-      <!-- 5. PRODUTOS E PREÇOS -->
       <section id="mod-produtos" class="module-section">
         <div class="panel">
           <div class="panel-title">5. Cadastro de Produtos e Preços</div>
@@ -821,7 +806,6 @@
         </div>
       </section>
 
-      <!-- 6. VENDAS E PEDIDOS -->
       <section id="mod-vendas" class="module-section">
         <div class="panel">
           <div class="panel-title">6. Histórico de Vendas e Pedidos</div>
@@ -834,7 +818,6 @@
         </div>
       </section>
 
-      <!-- 7. CLIENTES CRM -->
       <section id="mod-clientes" class="module-section">
         <div class="panel">
           <div class="panel-title">7. Clientes — CRM</div>
@@ -853,7 +836,6 @@
         </div>
       </section>
 
-      <!-- 8. FORNECEDORES -->
       <section id="mod-fornecedores" class="module-section">
         <div class="panel">
           <div class="panel-title">8. Fornecedores</div>
@@ -872,14 +854,13 @@
         </div>
       </section>
 
-      <!-- 9. INTEGRAÇÃO SITE -->
       <section id="mod-integracao" class="module-section">
         <div class="panel">
           <div class="panel-title">9. Integração com Site &amp; Canais</div>
 
           <div class="site-emblem-banner">
             <div id="siteEmblemP" class="site-emblem-p missing">
-              <img src="p-papato.png" alt="Emblema P Papato" onload="this.parentElement.classList.remove('missing')" onerror="this.parentElement.classList.add('missing')" />
+              <img src="p-papato.jpg" alt="Emblema P Papato" onload="this.parentElement.classList.remove('missing')" onerror="this.parentElement.classList.add('missing')" />
               <svg viewBox="0 0 80 80" fill="none">
                 <path d="M18 12H48C61 12 68 19 68 30C68 41 61 48 48 48H33V68H18V12ZM33 23V37H46C51.5 37 54.5 34.2 54.5 30C54.5 25.8 51.5 23 46 23H33Z" fill="url(#papatoHoneyGrad)" stroke="#120d05" stroke-width="3" stroke-linejoin="round" />
                 <circle cx="62" cy="56" r="6" fill="#ffd43b" />
@@ -909,7 +890,6 @@
         </div>
       </section>
 
-      <!-- 10. RELATÓRIOS -->
       <section id="mod-relatorios" class="module-section">
         <div class="panel">
           <div class="panel-title">10. Relatórios Gerenciais</div>
@@ -917,16 +897,16 @@
         </div>
       </section>
 
-      <!-- 11. CONFIGURAÇÕES -->
       <section id="mod-configuracoes" class="module-section">
         <div class="panel">
           <div class="panel-title">11. Configurações do Sistema</div>
           <div class="form-grid">
             <input type="number" id="cfgMeta" placeholder="Meta mensal (R$)" />
-            <input type="text" id="cfgPin" placeholder="Novo PIN de acesso (opcional)" />
+            <input type="text" id="cfgPin" placeholder="Novo PIN de administrador (ex: 4200)" />
             <button class="btn btn-gold" onclick="salvarConfig()">Salvar Configurações</button>
           </div>
-          <div style="margin-top:14px;">
+          <div id="cfgFeedback" style="font-size:0.84rem;color:var(--gold-bright);margin-bottom:10px;"></div>
+          <div style="margin-top:10px;">
             <button class="btn btn-danger" onclick="resetarDados()">Resetar Dados de Demonstração</button>
           </div>
         </div>
@@ -963,15 +943,24 @@
       ]
     };
 
+    function cloneDefaultState() {
+      return JSON.parse(JSON.stringify(DEFAULT_STATE));
+    }
+
     let state = loadState();
 
     function loadState() {
       try {
         const raw = localStorage.getItem(STORAGE_KEY);
-        if (!raw) return structuredClone(DEFAULT_STATE);
-        return { ...structuredClone(DEFAULT_STATE), ...JSON.parse(raw) };
+        if (!raw) return cloneDefaultState();
+        const parsed = JSON.parse(raw);
+        return {
+          ...cloneDefaultState(),
+          ...parsed,
+          pin: parsed.pin ? String(parsed.pin).trim() : '4200'
+        };
       } catch {
-        return structuredClone(DEFAULT_STATE);
+        return cloneDefaultState();
       }
     }
 
@@ -1227,12 +1216,13 @@
       if (meta > 0) state.metaMensal = meta;
       if (novoPin.length >= 4) state.pin = novoPin;
       document.getElementById('cfgPin').value = '';
+      document.getElementById('cfgFeedback').textContent = `Configurações salvas! PIN ativo: ${state.pin}`;
       saveState();
       renderAll();
     }
 
     function resetarDados() {
-      state = structuredClone(DEFAULT_STATE);
+      state = cloneDefaultState();
       saveState();
       renderAll();
     }
@@ -1254,7 +1244,7 @@
       reader.onload = () => {
         try {
           const parsed = JSON.parse(reader.result);
-          state = { ...structuredClone(DEFAULT_STATE), ...parsed };
+          state = { ...cloneDefaultState(), ...parsed };
           saveState();
           renderAll();
         } catch {}
@@ -1294,16 +1284,19 @@
       document.getElementById('lockScreen').classList.add('active');
       document.getElementById('pinInput').value = '';
       document.getElementById('pinError').textContent = '';
+      setTimeout(() => document.getElementById('pinInput')?.focus(), 50);
     }
 
     function unlockApp() {
       const val = document.getElementById('pinInput').value.trim();
-      if (val === String(state.pin || '4200')) {
+      const expectedPin = String(state.pin || '4200').trim();
+      if (val === expectedPin) {
         state.locked = false;
         saveState();
         document.getElementById('lockScreen').classList.remove('active');
+        document.getElementById('pinError').textContent = '';
       } else {
-        document.getElementById('pinError').textContent = 'PIN incorreto.';
+        document.getElementById('pinError').textContent = `PIN incorreto. Use o PIN configurado (padrão: ${expectedPin}).`;
       }
     }
 
@@ -1325,7 +1318,6 @@
       updateSmokeButton();
     }
 
-    // Fumaça mais encorpada e fluida no fundo (como no site)
     (function initSmoke() {
       const canvas = document.getElementById('smokeCanvas');
       const ctx = canvas.getContext('2d');

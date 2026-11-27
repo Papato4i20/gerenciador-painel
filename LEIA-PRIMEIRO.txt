@@ -1,0 +1,11 @@
+PAPATO GESTÃO PRO
+
+1) Leia README-DEPLOY.md.
+2) Gere uma NOVA senha administrativa com:
+   python scripts/generate-admin-hash.py
+3) Crie/configure o D1 e publique a pasta public com a pasta functions na raiz.
+4) Faça backup dos dados locais antes de substituir o HTML antigo.
+
+A senha compartilhada anteriormente não foi incluída no projeto.
+A sincronização real do catálogo/site ainda precisa de API e modelagem de dados;
+o HTML original armazenava dados apenas no navegador.

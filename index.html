@@ -8,22 +8,22 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="Papato Gestão" />
-  <link rel="apple-touch-icon" href="logo-papato.png" />
+  <link id="faviconLink" rel="icon" type="image/png" href="p-papato.png" />
+  <link rel="apple-touch-icon" href="p-papato.png" />
 
   <style>
     :root {
       --bg-void: #070709;
-      --bg-surface: rgba(16, 15, 19, 0.76);
-      --bg-surface-strong: rgba(13, 12, 16, 0.90);
-      --bg-elevated: rgba(26, 22, 16, 0.84);
+      --bg-surface: rgba(14, 13, 17, 0.56);
+      --bg-surface-strong: rgba(11, 10, 14, 0.78);
+      --bg-elevated: rgba(25, 20, 13, 0.72);
       --gold: #f5b700;
       --gold-bright: #ffd43b;
       --honey: #d98200;
-      --amber-glow: rgba(245, 183, 0, 0.22);
-      --border-subtle: rgba(245, 183, 0, 0.16);
-      --border-active: rgba(255, 212, 59, 0.55);
-      --text-main: #f5f3ee;
-      --text-muted: #a69f91;
+      --border-subtle: rgba(245, 183, 0, 0.2);
+      --border-active: rgba(255, 212, 59, 0.65);
+      --text-main: #f6f4ef;
+      --text-muted: #b5ae9f;
       --success: #2ecc71;
       --danger: #ff5252;
       --radius-lg: 16px;
@@ -47,7 +47,7 @@
       overflow-x: hidden;
     }
 
-    /* Canvas de fumaça / neblina ao fundo */
+    /* Fumaça em camadas no fundo */
     #smokeCanvas {
       position: fixed;
       inset: 0;
@@ -56,6 +56,7 @@
       z-index: 0;
       pointer-events: none;
       opacity: 1;
+      filter: blur(18px) contrast(1.12);
       transition: opacity 0.35s ease;
     }
 
@@ -63,16 +64,15 @@
       opacity: 0;
     }
 
-    /* Vinheta atmosférica escura com reflexo dourado sutil */
     .ambient-overlay {
       position: fixed;
       inset: 0;
       z-index: 1;
       pointer-events: none;
       background:
-        radial-gradient(circle at 85% 15%, rgba(245, 183, 0, 0.08), transparent 45%),
-        radial-gradient(circle at 20% 85%, rgba(217, 130, 0, 0.06), transparent 50%),
-        linear-gradient(180deg, rgba(7, 7, 9, 0.35) 0%, rgba(7, 7, 9, 0.65) 100%);
+        radial-gradient(circle at 78% 22%, rgba(245, 183, 0, 0.11), transparent 46%),
+        radial-gradient(circle at 22% 78%, rgba(217, 130, 0, 0.08), transparent 52%),
+        linear-gradient(180deg, rgba(7, 7, 9, 0.18) 0%, rgba(7, 7, 9, 0.46) 100%);
     }
 
     /* Tela de bloqueio por PIN */
@@ -84,7 +84,7 @@
       align-items: center;
       justify-content: center;
       padding: 20px;
-      background: rgba(7, 7, 9, 0.94);
+      background: rgba(7, 7, 9, 0.92);
       backdrop-filter: blur(14px);
     }
 
@@ -100,16 +100,24 @@
       border-radius: var(--radius-lg);
       padding: 28px 24px;
       text-align: center;
-      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.85), 0 0 32px rgba(245, 183, 0, 0.14);
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.85), 0 0 32px rgba(245, 183, 0, 0.16);
     }
 
-    .lock-logo {
-      width: 96px;
-      height: 96px;
-      object-fit: contain;
+    .lock-emblem {
+      width: 84px;
+      height: 84px;
       margin: 0 auto 14px;
-      display: block;
-      filter: drop-shadow(0 6px 18px rgba(245, 183, 0, 0.35));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .lock-emblem img,
+    .lock-emblem svg {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      filter: drop-shadow(0 6px 18px rgba(245, 183, 0, 0.4));
     }
 
     .lock-title {
@@ -131,7 +139,7 @@
       padding: 12px 14px;
       border-radius: var(--radius-md);
       border: 1px solid var(--border-subtle);
-      background: rgba(0, 0, 0, 0.55);
+      background: rgba(0, 0, 0, 0.6);
       color: var(--gold-bright);
       font-size: 1.2rem;
       text-align: center;
@@ -159,7 +167,7 @@
       flex-shrink: 0;
       background: var(--bg-surface-strong);
       border-right: 1px solid var(--border-subtle);
-      backdrop-filter: blur(14px);
+      backdrop-filter: blur(12px);
       display: flex;
       flex-direction: column;
       padding: 18px 14px;
@@ -181,8 +189,8 @@
     }
 
     .brand-logo-wrap {
-      width: 54px;
-      height: 54px;
+      width: 52px;
+      height: 52px;
       flex-shrink: 0;
       display: flex;
       align-items: center;
@@ -190,32 +198,24 @@
       position: relative;
     }
 
-    .brand-logo-wrap img {
+    .brand-logo-wrap img,
+    .brand-logo-wrap svg {
       width: 100%;
       height: 100%;
       object-fit: contain;
-      filter: drop-shadow(0 2px 10px rgba(245, 183, 0, 0.35));
+      filter: drop-shadow(0 3px 12px rgba(245, 183, 0, 0.38));
     }
 
-    .brand-fallback-badge {
+    .brand-logo-wrap svg {
       display: none;
-      width: 48px;
-      height: 48px;
-      border-radius: 12px;
-      align-items: center;
-      justify-content: center;
-      font-weight: 900;
-      font-size: 1.1rem;
-      color: #09090b;
-      background: linear-gradient(135deg, var(--gold-bright), var(--honey));
     }
 
     .brand-logo-wrap.missing img {
       display: none;
     }
 
-    .brand-logo-wrap.missing .brand-fallback-badge {
-      display: flex;
+    .brand-logo-wrap.missing svg {
+      display: block;
     }
 
     .brand-name {
@@ -257,13 +257,13 @@
     }
 
     .nav-btn:hover {
-      background: rgba(245, 183, 0, 0.08);
-      border-color: rgba(245, 183, 0, 0.2);
+      background: rgba(245, 183, 0, 0.09);
+      border-color: rgba(245, 183, 0, 0.24);
       color: var(--gold-bright);
     }
 
     .nav-btn.active {
-      background: linear-gradient(90deg, rgba(245, 183, 0, 0.22), rgba(217, 130, 0, 0.06));
+      background: linear-gradient(90deg, rgba(245, 183, 0, 0.24), rgba(217, 130, 0, 0.06));
       border-color: var(--border-active);
       color: var(--gold-bright);
       box-shadow: inset 3px 0 0 var(--gold);
@@ -285,7 +285,6 @@
       padding: 20px 24px 40px;
     }
 
-    /* Topbar */
     .topbar {
       display: flex;
       flex-wrap: wrap;
@@ -296,7 +295,7 @@
       border: 1px solid var(--border-subtle);
       border-radius: var(--radius-lg);
       padding: 16px 20px;
-      backdrop-filter: blur(12px);
+      backdrop-filter: blur(8px);
       margin-bottom: 20px;
     }
 
@@ -346,12 +345,16 @@
       font-size: 0.83rem;
       font-weight: 700;
       cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
       transition: all 0.18s ease;
     }
 
     .btn:hover {
       border-color: var(--gold);
       color: var(--gold-bright);
+      transform: translateY(-1px);
     }
 
     .btn-gold {
@@ -361,14 +364,83 @@
     }
 
     .btn-gold:hover {
-      filter: brightness(1.06);
+      filter: brightness(1.07);
       color: #09090b;
     }
 
     .btn-danger {
-      background: rgba(255, 82, 82, 0.14);
+      background: rgba(255, 82, 82, 0.16);
       border-color: rgba(255, 82, 82, 0.45);
-      color: #ff8a8a;
+      color: #ff9494;
+    }
+
+    /* Botão moderno de importar arquivo */
+    .file-upload-box {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 12px;
+      margin-top: 14px;
+      padding: 14px 16px;
+      border-radius: var(--radius-md);
+      border: 1px dashed rgba(245, 183, 0, 0.42);
+      background: rgba(10, 9, 13, 0.65);
+    }
+
+    .file-upload-box.dragover {
+      border-color: var(--gold-bright);
+      background: rgba(245, 183, 0, 0.12);
+    }
+
+    .file-upload-meta {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+
+    .file-upload-name {
+      color: var(--gold-bright);
+      font-weight: 700;
+    }
+
+    /* Banner com emblema P na aba Integração Site */
+    .site-emblem-banner {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 16px;
+      margin-bottom: 14px;
+      border-radius: var(--radius-md);
+      background: linear-gradient(90deg, rgba(245, 183, 0, 0.14), rgba(14, 13, 17, 0.55));
+      border: 1px solid rgba(245, 183, 0, 0.3);
+    }
+
+    .site-emblem-p {
+      width: 54px;
+      height: 54px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .site-emblem-p img,
+    .site-emblem-p svg {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      filter: drop-shadow(0 4px 14px rgba(245, 183, 0, 0.42));
+    }
+
+    .site-emblem-p svg {
+      display: none;
+    }
+
+    .site-emblem-p.missing img {
+      display: none;
+    }
+
+    .site-emblem-p.missing svg {
+      display: block;
     }
 
     /* KPIs */
@@ -384,7 +456,7 @@
       border: 1px solid var(--border-subtle);
       border-radius: var(--radius-md);
       padding: 16px 18px;
-      backdrop-filter: blur(10px);
+      backdrop-filter: blur(8px);
       transition: border-color 0.2s ease, transform 0.2s ease;
     }
 
@@ -414,7 +486,6 @@
       color: var(--success);
     }
 
-    /* Painéis e grades */
     .grid-2 {
       display: grid;
       grid-template-columns: 1.35fr 1fr;
@@ -427,7 +498,7 @@
       border: 1px solid var(--border-subtle);
       border-radius: var(--radius-lg);
       padding: 18px 20px;
-      backdrop-filter: blur(12px);
+      backdrop-filter: blur(8px);
       margin-bottom: 16px;
     }
 
@@ -450,7 +521,6 @@
       display: block;
     }
 
-    /* Tabelas e formulários */
     table {
       width: 100%;
       border-collapse: collapse;
@@ -498,9 +568,9 @@
       border-radius: 999px;
       font-size: 0.74rem;
       font-weight: 700;
-      background: rgba(245, 183, 0, 0.14);
+      background: rgba(245, 183, 0, 0.16);
       color: var(--gold-bright);
-      border: 1px solid rgba(245, 183, 0, 0.28);
+      border: 1px solid rgba(245, 183, 0, 0.32);
     }
 
     .backdrop-mobile {
@@ -544,17 +614,30 @@
   </style>
 </head>
 <body>
+  <!-- SVG reutilizável do emblema P em estilo mel/colmeia -->
+  <svg style="display:none" aria-hidden="true">
+    <defs>
+      <linearGradient id="papatoHoneyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#ffe066" />
+        <stop offset="50%" stop-color="#f5b700" />
+        <stop offset="100%" stop-color="#c97200" />
+      </linearGradient>
+    </defs>
+  </svg>
+
   <canvas id="smokeCanvas"></canvas>
   <div class="ambient-overlay"></div>
 
   <!-- Tela PIN -->
   <div id="lockScreen">
     <div class="lock-card">
-      <img src="logo-papato.png" alt="Papato Tabacaria" class="lock-logo" onerror="this.style.display='none'" />
+      <div class="lock-emblem">
+        <img src="p-papato.png" alt="Emblema P Papato" onerror="this.style.display='none'" />
+      </div>
       <div class="lock-title">PAPATO GESTÃO</div>
       <div class="lock-sub">Acesso restrito da administração • Reino da Brisa</div>
       <input type="password" id="pinInput" class="pin-input" maxlength="8" placeholder="••••" inputmode="numeric" />
-      <button class="btn btn-gold" style="width:100%" onclick="unlockApp()">Entrar no Painel</button>
+      <button class="btn btn-gold" style="width:100%;justify-content:center;" onclick="unlockApp()">Entrar no Painel</button>
       <div id="pinError" style="color:var(--danger);font-size:0.8rem;margin-top:10px;min-height:18px;"></div>
     </div>
   </div>
@@ -565,9 +648,12 @@
     <!-- Sidebar com os 11 módulos -->
     <aside id="sidebar" class="sidebar">
       <div class="brand-box">
-        <div id="brandLogoWrap" class="brand-logo-wrap">
-          <img id="brandLogoImg" src="logo-papato.png" alt="Logo Papato Tabacaria" onload="this.parentElement.classList.remove('missing')" onerror="this.parentElement.classList.add('missing')" />
-          <span class="brand-fallback-badge">PT</span>
+        <div id="brandLogoWrap" class="brand-logo-wrap missing">
+          <img id="brandLogoImg" src="p-papato.png" alt="Emblema P Papato Tabacaria" onload="this.parentElement.classList.remove('missing')" onerror="this.parentElement.classList.add('missing')" />
+          <svg viewBox="0 0 80 80" fill="none">
+            <path d="M18 12H48C61 12 68 19 68 30C68 41 61 48 48 48H33V68H18V12ZM33 23V37H46C51.5 37 54.5 34.2 54.5 30C54.5 25.8 51.5 23 46 23H33Z" fill="url(#papatoHoneyGrad)" stroke="#120d05" stroke-width="3" stroke-linejoin="round" />
+            <circle cx="62" cy="56" r="6" fill="#ffd43b" />
+          </svg>
         </div>
         <div>
           <div class="brand-name">PAPATO GESTÃO</div>
@@ -788,14 +874,35 @@
       <section id="mod-integracao" class="module-section">
         <div class="panel">
           <div class="panel-title">9. Integração com Site &amp; Canais</div>
-          <p style="font-size:0.9rem;color:var(--text-muted);margin-bottom:12px;">
-            Storefront: <span class="pill">papatotabacaria.pages.dev</span> • Painel: <span class="pill">paineltabacaria.pages.dev</span>
+
+          <div class="site-emblem-banner">
+            <div id="siteEmblemP" class="site-emblem-p missing">
+              <img src="p-papato.png" alt="Emblema P Papato" onload="this.parentElement.classList.remove('missing')" onerror="this.parentElement.classList.add('missing')" />
+              <svg viewBox="0 0 80 80" fill="none">
+                <path d="M18 12H48C61 12 68 19 68 30C68 41 61 48 48 48H33V68H18V12ZM33 23V37H46C51.5 37 54.5 34.2 54.5 30C54.5 25.8 51.5 23 46 23H33Z" fill="url(#papatoHoneyGrad)" stroke="#120d05" stroke-width="3" stroke-linejoin="round" />
+                <circle cx="62" cy="56" r="6" fill="#ffd43b" />
+              </svg>
+            </div>
+            <div>
+              <div style="font-weight:800;color:var(--gold-bright);font-size:0.95rem;">PAPATO • CONEXÃO OFICIAL</div>
+              <div style="font-size:0.84rem;color:var(--text-muted);margin-top:4px;">
+                Storefront: <span class="pill">papatotabacaria.pages.dev</span> • Painel: <span class="pill">paineltabacaria.pages.dev</span>
+              </div>
+            </div>
+          </div>
+
+          <p style="font-size:0.86rem;line-height:1.5;color:var(--text-muted);">
+            Restaure ou importe um arquivo <strong>.json</strong> de backup para sincronizar seus dados entre sessões e dispositivos.
           </p>
-          <p style="font-size:0.86rem;line-height:1.5;">
-            Use o botão <strong>Backup JSON</strong> no topo para exportar ou importar os dados da operação entre sessões e dispositivos.
-          </p>
-          <div style="margin-top:12px;">
-            <input type="file" id="importJsonInput" accept="application/json" onchange="importBackup(event)" />
+
+          <div id="dropZoneJson" class="file-upload-box">
+            <input type="file" id="importJsonInput" accept="application/json,.json" style="display:none" onchange="importBackup(event)" />
+            <button type="button" class="btn btn-gold" onclick="document.getElementById('importJsonInput').click()">
+              Selecionar Backup .JSON
+            </button>
+            <div class="file-upload-meta">
+              Arquivo atual: <span id="selectedFileName" class="file-upload-name">Nenhum arquivo selecionado</span>
+            </div>
           </div>
         </div>
       </section>
@@ -939,7 +1046,6 @@
       kpiBruto.className = 'kpi-value ' + (lucroBruto < 0 ? 'neg' : 'pos');
       kpiLiq.className = 'kpi-value ' + (lucroLiquido < 0 ? 'neg' : 'pos');
 
-      // Top produtos
       const rankMap = {};
       state.vendas.forEach(v => {
         if (!rankMap[v.nomeProduto]) rankMap[v.nomeProduto] = { nome: v.nomeProduto, qtd: 0, receita: 0 };
@@ -955,7 +1061,6 @@
         </tr>
       `).join('') || '<tr><td colspan="3">Sem vendas registradas ainda.</td></tr>';
 
-      // Meta e estoque
       const pctMeta = state.metaMensal > 0 ? Math.round(((faturamento + outrasEntradas) / state.metaMensal) * 100) : 0;
       document.getElementById('metaResumo').innerHTML =
         `Meta mensal (${fmtBRL(state.metaMensal)}): <strong>${pctMeta}%</strong> atingido.`;
@@ -965,12 +1070,10 @@
         ? `Atenção: ${baixos.map(b => b.nome).join(', ')} no limite ou abaixo do mínimo.`
         : 'Todos os produtos acima do estoque mínimo.';
 
-      // Select PDV
       document.getElementById('pdvProduto').innerHTML = state.produtos.map(p =>
         `<option value="${p.id}">${p.nome} — ${fmtBRL(p.preco)} (${p.estoque} un)</option>`
       ).join('');
 
-      // Estoque
       document.getElementById('estoqueTabela').innerHTML = state.produtos.map(p => `
         <tr>
           <td>${p.nome}</td>
@@ -981,7 +1084,6 @@
         </tr>
       `).join('');
 
-      // Produtos
       document.getElementById('produtosTabela').innerHTML = state.produtos.map(p => `
         <tr>
           <td>${p.nome}</td>
@@ -992,7 +1094,6 @@
         </tr>
       `).join('');
 
-      // Vendas
       document.getElementById('vendasTabela').innerHTML = state.vendas.slice().reverse().map(v => `
         <tr>
           <td>${v.data}</td>
@@ -1004,7 +1105,6 @@
         </tr>
       `).join('');
 
-      // Financeiro
       document.getElementById('finTabela').innerHTML = state.lancamentos.slice().reverse().map(l => `
         <tr>
           <td><span class="pill">${l.tipo.toUpperCase()}</span></td>
@@ -1013,17 +1113,14 @@
         </tr>
       `).join('');
 
-      // Clientes
       document.getElementById('clientesTabela').innerHTML = state.clientes.map(c => `
         <tr><td>${c.nome}</td><td>${c.contato}</td><td>${c.obs}</td></tr>
       `).join('');
 
-      // Fornecedores
       document.getElementById('fornecedoresTabela').innerHTML = state.fornecedores.map(f => `
         <tr><td>${f.nome}</td><td>${f.linha}</td><td>${f.contato}</td></tr>
       `).join('');
 
-      // Relatórios
       document.getElementById('relatorioResumo').innerHTML = `
         <div>• Vendas lançadas: <strong>${state.vendas.length}</strong></div>
         <div>• Faturamento bruto em vendas: <strong>${fmtBRL(faturamento)}</strong></div>
@@ -1148,9 +1245,9 @@
       URL.revokeObjectURL(url);
     }
 
-    function importBackup(ev) {
-      const file = ev.target.files?.[0];
+    function processBackupFile(file) {
       if (!file) return;
+      document.getElementById('selectedFileName').textContent = file.name;
       const reader = new FileReader();
       reader.onload = () => {
         try {
@@ -1162,6 +1259,32 @@
       };
       reader.readAsText(file);
     }
+
+    function importBackup(ev) {
+      const file = ev.target.files?.[0];
+      processBackupFile(file);
+    }
+
+    (function initDropZone() {
+      const dz = document.getElementById('dropZoneJson');
+      if (!dz) return;
+      ['dragenter', 'dragover'].forEach(evt => {
+        dz.addEventListener(evt, e => {
+          e.preventDefault();
+          dz.classList.add('dragover');
+        });
+      });
+      ['dragleave', 'drop'].forEach(evt => {
+        dz.addEventListener(evt, e => {
+          e.preventDefault();
+          dz.classList.remove('dragover');
+        });
+      });
+      dz.addEventListener('drop', e => {
+        const file = e.dataTransfer?.files?.[0];
+        processBackupFile(file);
+      });
+    })();
 
     function lockApp() {
       state.locked = true;
@@ -1200,71 +1323,26 @@
       updateSmokeButton();
     }
 
-    // Animação orgânica de fumaça / neblina no fundo
+    // Fumaça mais encorpada e fluida no fundo (como no site)
     (function initSmoke() {
       const canvas = document.getElementById('smokeCanvas');
       const ctx = canvas.getContext('2d');
-      let w, h, puffs = [];
+      let w, h, clouds = [], t = 0;
 
       function resize() {
         w = canvas.width = window.innerWidth;
         h = canvas.height = window.innerHeight;
       }
 
-      function createPuffs() {
-        const count = Math.min(22, Math.max(12, Math.floor((w * h) / 65000)));
-        puffs = Array.from({ length: count }, (_, idx) => ({
+      function createClouds() {
+        const count = 26;
+        clouds = Array.from({ length: count }, (_, i) => ({
           x: Math.random() * w,
           y: Math.random() * h,
-          r: 140 + Math.random() * 210,
-          vx: (Math.random() - 0.35) * 0.45,
-          vy: -0.18 - Math.random() * 0.35,
-          alpha: 0.045 + Math.random() * 0.065,
-          warm: idx % 4 === 0
-        }));
-      }
-
-      function draw() {
-        ctx.clearRect(0, 0, w, h);
-        if (state.smokeEnabled) {
-          for (const p of puffs) {
-            p.x += p.vx;
-            p.y += p.vy;
-
-            if (p.y < -p.r) p.y = h + p.r;
-            if (p.x < -p.r) p.x = w + p.r;
-            if (p.x > w + p.r) p.x = -p.r;
-
-            const grad = ctx.createRadialGradient(p.x, p.y, p.r * 0.08, p.x, p.y, p.r);
-            if (p.warm) {
-              grad.addColorStop(0, `rgba(245, 183, 0, ${p.alpha})`);
-              grad.addColorStop(0.55, `rgba(217, 130, 0, ${p.alpha * 0.45})`);
-              grad.addColorStop(1, 'rgba(245, 183, 0, 0)');
-            } else {
-              grad.addColorStop(0, `rgba(215, 222, 232, ${p.alpha})`);
-              grad.addColorStop(0.6, `rgba(140, 148, 162, ${p.alpha * 0.4})`);
-              grad.addColorStop(1, 'rgba(140, 148, 162, 0)');
-            }
-
-            ctx.fillStyle = grad;
-            ctx.beginPath();
-            ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-            ctx.fill();
-          }
-        }
-        requestAnimationFrame(draw);
-      }
-
-      window.addEventListener('resize', () => { resize(); createPuffs(); });
-      resize();
-      createPuffs();
-      draw();
-    })();
-
-    if (state.locked) {
-      document.getElementById('lockScreen').classList.add('active');
-    }
-    renderAll();
-  </script>
-</body>
-</html>
+          rx: 180 + Math.random() * 240,
+          ry: 130 + Math.random() * 180,
+          vx: (Math.random() - 0.5) * 0.65,
+          vy: -0.25 - Math.random() * 0.45,
+          phase: Math.random() * Math.PI * 2,
+          alpha: 0.08 + Math.random() * 0.09,
+          tone

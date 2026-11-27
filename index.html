@@ -175,7 +175,7 @@
       height: 100vh;
       overflow-y: auto;
       z-index: 30;
-      transition: transform 0.28s ease;
+      transition: transform 0.22s ease;
     }
 
     .brand-box {
@@ -253,7 +253,8 @@
       display: flex;
       align-items: center;
       gap: 8px;
-      transition: all 0.18s ease;
+      touch-action: manipulation;
+      transition: all 0.15s ease;
     }
 
     .nav-btn:hover {
@@ -313,6 +314,7 @@
       padding: 8px 12px;
       font-size: 1rem;
       cursor: pointer;
+      touch-action: manipulation;
     }
 
     .page-title {
@@ -346,7 +348,8 @@
       display: inline-flex;
       align-items: center;
       gap: 7px;
-      transition: all 0.18s ease;
+      touch-action: manipulation;
+      transition: all 0.15s ease;
     }
 
     .btn:hover {
@@ -575,10 +578,12 @@
       inset: 0;
       background: rgba(0, 0, 0, 0.65);
       z-index: 25;
+      pointer-events: none;
     }
 
     .backdrop-mobile.active {
       display: block;
+      pointer-events: auto;
     }
 
     @media (max-width: 980px) {
@@ -629,9 +634,9 @@
         <img src="p-papato.jpg" alt="Emblema P Papato" onerror="this.style.display='none'" />
       </div>
       <div class="lock-title">PAPATO GESTÃO</div>
-      <div class="lock-sub">Acesso de administrador • PIN padrão: 4200</div>
+      <div class="lock-sub">Acesso de administrador • PIN: 9213</div>
       <input type="password" id="pinInput" class="pin-input" maxlength="8" placeholder="••••" inputmode="numeric" onkeydown="if(event.key==='Enter') unlockApp()" />
-      <button class="btn btn-gold" style="width:100%;justify-content:center;" onclick="unlockApp()">Entrar no Painel</button>
+      <button type="button" class="btn btn-gold" style="width:100%;justify-content:center;" onclick="unlockApp()">Entrar no Painel</button>
       <div id="pinError" style="color:var(--danger);font-size:0.8rem;margin-top:10px;min-height:18px;"></div>
     </div>
   </div>
@@ -655,17 +660,17 @@
       </div>
 
       <nav class="nav-list" id="navList">
-        <button class="nav-btn active" data-mod="dashboard" onclick="switchModule('dashboard', this)">1. Dashboard</button>
-        <button class="nav-btn" data-mod="pdv" onclick="switchModule('pdv', this)">2. Caixa e PDV</button>
-        <button class="nav-btn" data-mod="financeiro" onclick="switchModule('financeiro', this)">3. Financeiro</button>
-        <button class="nav-btn" data-mod="estoque" onclick="switchModule('estoque', this)">4. Estoque</button>
-        <button class="nav-btn" data-mod="produtos" onclick="switchModule('produtos', this)">5. Produtos e Preços</button>
-        <button class="nav-btn" data-mod="vendas" onclick="switchModule('vendas', this)">6. Vendas e Pedidos</button>
-        <button class="nav-btn" data-mod="clientes" onclick="switchModule('clientes', this)">7. Clientes — CRM</button>
-        <button class="nav-btn" data-mod="fornecedores" onclick="switchModule('fornecedores', this)">8. Fornecedores</button>
-        <button class="nav-btn" data-mod="integracao" onclick="switchModule('integracao', this)">9. Integração Site</button>
-        <button class="nav-btn" data-mod="relatorios" onclick="switchModule('relatorios', this)">10. Relatórios</button>
-        <button class="nav-btn" data-mod="configuracoes" onclick="switchModule('configuracoes', this)">11. Configurações</button>
+        <button type="button" class="nav-btn active" data-mod="dashboard" onclick="switchModule('dashboard', this)">1. Dashboard</button>
+        <button type="button" class="nav-btn" data-mod="pdv" onclick="switchModule('pdv', this)">2. Caixa e PDV</button>
+        <button type="button" class="nav-btn" data-mod="financeiro" onclick="switchModule('financeiro', this)">3. Financeiro</button>
+        <button type="button" class="nav-btn" data-mod="estoque" onclick="switchModule('estoque', this)">4. Estoque</button>
+        <button type="button" class="nav-btn" data-mod="produtos" onclick="switchModule('produtos', this)">5. Produtos e Preços</button>
+        <button type="button" class="nav-btn" data-mod="vendas" onclick="switchModule('vendas', this)">6. Vendas e Pedidos</button>
+        <button type="button" class="nav-btn" data-mod="clientes" onclick="switchModule('clientes', this)">7. Clientes — CRM</button>
+        <button type="button" class="nav-btn" data-mod="fornecedores" onclick="switchModule('fornecedores', this)">8. Fornecedores</button>
+        <button type="button" class="nav-btn" data-mod="integracao" onclick="switchModule('integracao', this)">9. Integração Site</button>
+        <button type="button" class="nav-btn" data-mod="relatorios" onclick="switchModule('relatorios', this)">10. Relatórios</button>
+        <button type="button" class="nav-btn" data-mod="configuracoes" onclick="switchModule('configuracoes', this)">11. Configurações</button>
       </nav>
 
       <div class="sidebar-footer">
@@ -677,7 +682,7 @@
     <main class="main-area">
       <header class="topbar">
         <div class="topbar-left">
-          <button class="menu-toggle" onclick="toggleSidebar()" aria-label="Menu">☰</button>
+          <button type="button" class="menu-toggle" onclick="toggleSidebar()" aria-label="Menu">☰</button>
           <div>
             <div id="moduleTitle" class="page-title">1. Dashboard — Visão geral</div>
             <div id="moduleSubtitle" class="page-subtitle">Papato Tabacaria • Atualizado agora</div>
@@ -685,9 +690,9 @@
         </div>
 
         <div class="topbar-actions">
-          <button id="smokeBtn" class="btn" onclick="toggleSmoke()">Neblina: ON</button>
-          <button class="btn" onclick="exportBackup()">Backup JSON</button>
-          <button class="btn btn-gold" onclick="lockApp()">Sair com segurança</button>
+          <button type="button" id="smokeBtn" class="btn" onclick="toggleSmoke()">Neblina: ON</button>
+          <button type="button" class="btn" onclick="exportBackup()">Backup JSON</button>
+          <button type="button" class="btn btn-gold" onclick="lockApp()">Sair com segurança</button>
         </div>
       </header>
 
@@ -747,7 +752,7 @@
               <option value="Cartão">Cartão</option>
               <option value="WhatsApp / Delivery">WhatsApp / Delivery</option>
             </select>
-            <button class="btn btn-gold" onclick="registrarVendaPDV()">Lançar Venda</button>
+            <button type="button" class="btn btn-gold" onclick="registrarVendaPDV()">Lançar Venda</button>
           </div>
           <div id="pdvFeedback" style="font-size:0.85rem;color:var(--gold-bright);"></div>
         </div>
@@ -763,7 +768,7 @@
             </select>
             <input type="text" id="finDescricao" placeholder="Descrição (ex: Aluguel, Fornecedor, Embalagem)" />
             <input type="number" id="finValor" step="0.01" placeholder="Valor (R$)" />
-            <button class="btn btn-gold" onclick="adicionarLancamentoFin()">Salvar Lançamento</button>
+            <button type="button" class="btn btn-gold" onclick="adicionarLancamentoFin()">Salvar Lançamento</button>
           </div>
           <table>
             <thead>
@@ -795,7 +800,7 @@
             <input type="number" id="prodCusto" step="0.01" placeholder="Custo unit. (R$)" />
             <input type="number" id="prodPreco" step="0.01" placeholder="Preço venda (R$)" />
             <input type="number" id="prodQtd" placeholder="Qtd inicial" />
-            <button class="btn btn-gold" onclick="adicionarProduto()">Adicionar Produto</button>
+            <button type="button" class="btn btn-gold" onclick="adicionarProduto()">Adicionar Produto</button>
           </div>
           <table>
             <thead>
@@ -825,7 +830,7 @@
             <input type="text" id="cliNome" placeholder="Nome do cliente" />
             <input type="text" id="cliContato" placeholder="WhatsApp / Instagram" />
             <input type="text" id="cliObs" placeholder="Preferência (ex: seda king, piteira)" />
-            <button class="btn btn-gold" onclick="adicionarCliente()">Salvar Cliente</button>
+            <button type="button" class="btn btn-gold" onclick="adicionarCliente()">Salvar Cliente</button>
           </div>
           <table>
             <thead>
@@ -843,7 +848,7 @@
             <input type="text" id="fornNome" placeholder="Nome do fornecedor" />
             <input type="text" id="fornLinha" placeholder="Linha fornecida" />
             <input type="text" id="fornContato" placeholder="Telefone / Contato" />
-            <button class="btn btn-gold" onclick="adicionarFornecedor()">Salvar Fornecedor</button>
+            <button type="button" class="btn btn-gold" onclick="adicionarFornecedor()">Salvar Fornecedor</button>
           </div>
           <table>
             <thead>
@@ -902,12 +907,12 @@
           <div class="panel-title">11. Configurações do Sistema</div>
           <div class="form-grid">
             <input type="number" id="cfgMeta" placeholder="Meta mensal (R$)" />
-            <input type="text" id="cfgPin" placeholder="Novo PIN de administrador (ex: 4200)" />
-            <button class="btn btn-gold" onclick="salvarConfig()">Salvar Configurações</button>
+            <input type="text" id="cfgPin" placeholder="Novo PIN de administrador (ex: 9213)" />
+            <button type="button" class="btn btn-gold" onclick="salvarConfig()">Salvar Configurações</button>
           </div>
           <div id="cfgFeedback" style="font-size:0.84rem;color:var(--gold-bright);margin-bottom:10px;"></div>
           <div style="margin-top:10px;">
-            <button class="btn btn-danger" onclick="resetarDados()">Resetar Dados de Demonstração</button>
+            <button type="button" class="btn btn-danger" onclick="resetarDados()">Resetar Dados de Demonstração</button>
           </div>
         </div>
       </section>
@@ -918,7 +923,7 @@
     const STORAGE_KEY = 'papato_gestao_state_v1';
 
     const DEFAULT_STATE = {
-      pin: '4200',
+      pin: '9213',
       locked: false,
       smokeEnabled: true,
       metaMensal: 6000,
@@ -957,7 +962,8 @@
         return {
           ...cloneDefaultState(),
           ...parsed,
-          pin: parsed.pin ? String(parsed.pin).trim() : '4200'
+          pin: parsed.pin ? String(parsed.pin).trim() : '9213',
+          locked: Boolean(parsed.locked)
         };
       } catch {
         return cloneDefaultState();
@@ -988,7 +994,12 @@
 
       const target = document.getElementById('mod-' + mod);
       if (target) target.classList.add('active');
-      if (btnEl) btnEl.classList.add('active');
+      if (btnEl) {
+        btnEl.classList.add('active');
+      } else {
+        const fallbackBtn = document.querySelector(`.nav-btn[data-mod="${mod}"]`);
+        if (fallbackBtn) fallbackBtn.classList.add('active');
+      }
 
       const [title, sub] = MODULE_META[mod] || ['Papato Gestão', 'Papato Tabacaria'];
       document.getElementById('moduleTitle').textContent = title;
@@ -1071,7 +1082,7 @@
           <td>${p.categoria || 'Geral'}</td>
           <td>${p.estoque}</td>
           <td>${p.minimo || 3}</td>
-          <td><button class="btn" onclick="ajustarEstoque(${p.id}, 5)">+5 un</button></td>
+          <td><button type="button" class="btn" onclick="ajustarEstoque(${p.id}, 5)">+5 un</button></td>
         </tr>
       `).join('');
 
@@ -1222,7 +1233,10 @@
     }
 
     function resetarDados() {
+      const pinAtual = state.pin || '9213';
       state = cloneDefaultState();
+      state.pin = pinAtual;
+      state.locked = false;
       saveState();
       renderAll();
     }
@@ -1244,7 +1258,12 @@
       reader.onload = () => {
         try {
           const parsed = JSON.parse(reader.result);
-          state = { ...cloneDefaultState(), ...parsed };
+          state = {
+            ...cloneDefaultState(),
+            ...parsed,
+            pin: parsed.pin ? String(parsed.pin).trim() : (state.pin || '9213'),
+            locked: false
+          };
           saveState();
           renderAll();
         } catch {}
@@ -1279,6 +1298,7 @@
     })();
 
     function lockApp() {
+      toggleSidebar(false);
       state.locked = true;
       saveState();
       document.getElementById('lockScreen').classList.add('active');
@@ -1288,15 +1308,17 @@
     }
 
     function unlockApp() {
-      const val = document.getElementById('pinInput').value.trim();
-      const expectedPin = String(state.pin || '4200').trim();
+      const inputEl = document.getElementById('pinInput');
+      const val = (inputEl?.value || '').trim();
+      const expectedPin = String(state.pin || '9213').trim();
       if (val === expectedPin) {
         state.locked = false;
         saveState();
         document.getElementById('lockScreen').classList.remove('active');
         document.getElementById('pinError').textContent = '';
+        if (inputEl) inputEl.value = '';
       } else {
-        document.getElementById('pinError').textContent = `PIN incorreto. Use o PIN configurado (padrão: ${expectedPin}).`;
+        document.getElementById('pinError').textContent = 'PIN incorreto. Tente novamente.';
       }
     }
 

@@ -2,44 +2,52 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <meta name="theme-color" content="#0b0b0e" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>PAPATO GESTÃO • Tabacaria &amp; Headshop</title>
+  <meta name="theme-color" content="#070709" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="Papato Gestão" />
-  <title>Papato Gestão — Painel Executivo & PDV</title>
-  <link id="appleTouchIcon" rel="apple-touch-icon" href="assets/img/logo.png" />
+  <link rel="apple-touch-icon" href="logo-papato.png" />
+
   <style>
     :root {
-      --bg: #09090c;
-      --panel: rgba(17, 17, 22, 0.82);
-      --panel-strong: rgba(22, 22, 29, 0.92);
-      --border: rgba(250, 204, 21, 0.22);
-      --border-soft: rgba(255, 255, 255, 0.08);
-      --gold: #facc15;
-      --gold-deep: #ca8a04;
-      --text: #f4f4f6;
-      --muted: #a1a1aa;
-      --ok: #22c55e;
-      --warn: #f59e0b;
-      --bad: #ef4444;
-      --radius: 16px;
+      --bg-void: #070709;
+      --bg-surface: rgba(16, 15, 19, 0.76);
+      --bg-surface-strong: rgba(13, 12, 16, 0.90);
+      --bg-elevated: rgba(26, 22, 16, 0.84);
+      --gold: #f5b700;
+      --gold-bright: #ffd43b;
+      --honey: #d98200;
+      --amber-glow: rgba(245, 183, 0, 0.22);
+      --border-subtle: rgba(245, 183, 0, 0.16);
+      --border-active: rgba(255, 212, 59, 0.55);
+      --text-main: #f5f3ee;
+      --text-muted: #a69f91;
+      --success: #2ecc71;
+      --danger: #ff5252;
+      --radius-lg: 16px;
+      --radius-md: 12px;
+      --radius-sm: 8px;
+      --sidebar-w: 256px;
     }
 
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
+      -webkit-tap-highlight-color: transparent;
     }
 
     html, body {
       min-height: 100%;
-      background: var(--bg);
-      color: var(--text);
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg-void);
+      color: var(--text-main);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Helvetica, Arial, sans-serif;
       overflow-x: hidden;
     }
 
+    /* Canvas de fumaça / neblina ao fundo */
     #smokeCanvas {
       position: fixed;
       inset: 0;
@@ -47,1080 +55,1216 @@
       height: 100vh;
       z-index: 0;
       pointer-events: none;
+      opacity: 1;
+      transition: opacity 0.35s ease;
     }
 
+    #smokeCanvas.smoke-off {
+      opacity: 0;
+    }
+
+    /* Vinheta atmosférica escura com reflexo dourado sutil */
+    .ambient-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+      pointer-events: none;
+      background:
+        radial-gradient(circle at 85% 15%, rgba(245, 183, 0, 0.08), transparent 45%),
+        radial-gradient(circle at 20% 85%, rgba(217, 130, 0, 0.06), transparent 50%),
+        linear-gradient(180deg, rgba(7, 7, 9, 0.35) 0%, rgba(7, 7, 9, 0.65) 100%);
+    }
+
+    /* Tela de bloqueio por PIN */
+    #lockScreen {
+      position: fixed;
+      inset: 0;
+      z-index: 999;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      background: rgba(7, 7, 9, 0.94);
+      backdrop-filter: blur(14px);
+    }
+
+    #lockScreen.active {
+      display: flex;
+    }
+
+    .lock-card {
+      width: 100%;
+      max-width: 380px;
+      background: var(--bg-surface-strong);
+      border: 1px solid var(--border-active);
+      border-radius: var(--radius-lg);
+      padding: 28px 24px;
+      text-align: center;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.85), 0 0 32px rgba(245, 183, 0, 0.14);
+    }
+
+    .lock-logo {
+      width: 96px;
+      height: 96px;
+      object-fit: contain;
+      margin: 0 auto 14px;
+      display: block;
+      filter: drop-shadow(0 6px 18px rgba(245, 183, 0, 0.35));
+    }
+
+    .lock-title {
+      font-size: 1.25rem;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      color: var(--gold-bright);
+      text-transform: uppercase;
+    }
+
+    .lock-sub {
+      font-size: 0.84rem;
+      color: var(--text-muted);
+      margin: 6px 0 18px;
+    }
+
+    .pin-input {
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-subtle);
+      background: rgba(0, 0, 0, 0.55);
+      color: var(--gold-bright);
+      font-size: 1.2rem;
+      text-align: center;
+      letter-spacing: 0.35em;
+      margin-bottom: 12px;
+      outline: none;
+    }
+
+    .pin-input:focus {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px rgba(245, 183, 0, 0.18);
+    }
+
+    /* Layout principal */
     .app-shell {
       position: relative;
-      z-index: 1;
-      display: grid;
-      grid-template-columns: 270px 1fr;
+      z-index: 2;
+      display: flex;
       min-height: 100vh;
-      padding-top: env(safe-area-inset-top);
-      padding-bottom: env(safe-area-inset-bottom);
     }
 
+    /* Sidebar */
     .sidebar {
-      background: var(--panel);
+      width: var(--sidebar-w);
+      flex-shrink: 0;
+      background: var(--bg-surface-strong);
+      border-right: 1px solid var(--border-subtle);
       backdrop-filter: blur(14px);
-      border-right: 1px solid var(--border-soft);
-      padding: 20px 14px;
       display: flex;
       flex-direction: column;
-      gap: 16px;
+      padding: 18px 14px;
       position: sticky;
       top: 0;
       height: 100vh;
       overflow-y: auto;
+      z-index: 30;
+      transition: transform 0.28s ease;
     }
 
     .brand-box {
       display: flex;
       align-items: center;
       gap: 12px;
-      padding: 12px;
-      border-radius: var(--radius);
-      background: rgba(250, 204, 21, 0.07);
-      border: 1px solid var(--border);
+      padding: 10px 10px 16px;
+      margin-bottom: 12px;
+      border-bottom: 1px solid var(--border-subtle);
     }
 
     .brand-logo-wrap {
-      width: 48px;
-      height: 48px;
-      border-radius: 12px;
-      background: #121217;
-      border: 1px solid rgba(250, 204, 21, 0.45);
-      display: grid;
-      place-items: center;
-      overflow: hidden;
+      width: 54px;
+      height: 54px;
       flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
     }
 
     .brand-logo-wrap img {
       width: 100%;
       height: 100%;
-      object-fit: cover;
+      object-fit: contain;
+      filter: drop-shadow(0 2px 10px rgba(245, 183, 0, 0.35));
+    }
+
+    .brand-fallback-badge {
+      display: none;
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      font-size: 1.1rem;
+      color: #09090b;
+      background: linear-gradient(135deg, var(--gold-bright), var(--honey));
+    }
+
+    .brand-logo-wrap.missing img {
       display: none;
     }
 
-    .brand-logo-wrap.has-img img {
-      display: block;
+    .brand-logo-wrap.missing .brand-fallback-badge {
+      display: flex;
     }
 
-    .brand-logo-wrap.has-img .fallback-emblem {
-      display: none;
+    .brand-name {
+      font-size: 0.98rem;
+      font-weight: 900;
+      letter-spacing: 0.04em;
+      color: var(--gold-bright);
+      line-height: 1.15;
     }
 
-    .brand-title {
-      font-size: 15px;
-      font-weight: 800;
-      color: var(--gold);
-      letter-spacing: 0.02em;
-    }
-
-    .brand-sub {
-      font-size: 12px;
-      color: var(--muted);
+    .brand-tagline {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      margin-top: 3px;
     }
 
     .nav-list {
       display: flex;
       flex-direction: column;
       gap: 4px;
+      flex: 1;
     }
 
     .nav-btn {
       width: 100%;
       text-align: left;
-      border: 1px solid transparent;
       background: transparent;
-      color: var(--text);
+      border: 1px solid transparent;
+      color: var(--text-main);
       padding: 10px 12px;
-      border-radius: 12px;
-      font-size: 13px;
+      border-radius: var(--radius-sm);
+      font-size: 0.88rem;
       font-weight: 600;
       cursor: pointer;
       display: flex;
       align-items: center;
       gap: 8px;
-      transition: background 0.15s ease, border-color 0.15s ease;
+      transition: all 0.18s ease;
     }
 
     .nav-btn:hover {
-      background: rgba(255, 255, 255, 0.05);
+      background: rgba(245, 183, 0, 0.08);
+      border-color: rgba(245, 183, 0, 0.2);
+      color: var(--gold-bright);
     }
 
     .nav-btn.active {
-      background: rgba(250, 204, 21, 0.14);
-      border-color: var(--border);
-      color: var(--gold);
+      background: linear-gradient(90deg, rgba(245, 183, 0, 0.22), rgba(217, 130, 0, 0.06));
+      border-color: var(--border-active);
+      color: var(--gold-bright);
+      box-shadow: inset 3px 0 0 var(--gold);
     }
 
+    .sidebar-footer {
+      margin-top: 14px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border-subtle);
+      font-size: 0.74rem;
+      color: var(--text-muted);
+      text-align: center;
+    }
+
+    /* Área principal */
     .main-area {
-      padding: 20px 24px 48px;
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-      max-width: 1400px;
-      width: 100%;
+      flex: 1;
+      min-width: 0;
+      padding: 20px 24px 40px;
     }
 
+    /* Topbar */
     .topbar {
       display: flex;
       flex-wrap: wrap;
       align-items: center;
       justify-content: space-between;
-      gap: 12px;
-      background: var(--panel);
-      backdrop-filter: blur(14px);
-      border: 1px solid var(--border-soft);
-      border-radius: var(--radius);
-      padding: 14px 18px;
+      gap: 14px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 16px 20px;
+      backdrop-filter: blur(12px);
+      margin-bottom: 20px;
     }
 
-    .mobile-brand {
-      display: none;
+    .topbar-left {
+      display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 12px;
+    }
+
+    .menu-toggle {
+      display: none;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-subtle);
+      color: var(--gold-bright);
+      border-radius: var(--radius-sm);
+      padding: 8px 12px;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+
+    .page-title {
+      font-size: 1.2rem;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+
+    .page-subtitle {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-top: 2px;
     }
 
     .topbar-actions {
       display: flex;
       flex-wrap: wrap;
-      gap: 8px;
       align-items: center;
+      gap: 8px;
     }
 
+    /* Botões */
     .btn {
-      border: 1px solid var(--border);
-      background: var(--panel-strong);
-      color: var(--text);
-      padding: 8px 14px;
-      border-radius: 10px;
-      font-size: 12px;
+      border: 1px solid var(--border-subtle);
+      background: var(--bg-elevated);
+      color: var(--text-main);
+      padding: 9px 14px;
+      border-radius: var(--radius-sm);
+      font-size: 0.83rem;
       font-weight: 700;
       cursor: pointer;
+      transition: all 0.18s ease;
+    }
+
+    .btn:hover {
+      border-color: var(--gold);
+      color: var(--gold-bright);
     }
 
     .btn-gold {
-      background: var(--gold);
-      color: #111;
-      border-color: var(--gold);
+      background: linear-gradient(135deg, var(--gold-bright), var(--honey));
+      color: #09090b;
+      border-color: transparent;
     }
 
-    .grid-kpis {
+    .btn-gold:hover {
+      filter: brightness(1.06);
+      color: #09090b;
+    }
+
+    .btn-danger {
+      background: rgba(255, 82, 82, 0.14);
+      border-color: rgba(255, 82, 82, 0.45);
+      color: #ff8a8a;
+    }
+
+    /* KPIs */
+    .kpi-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(185px, 1fr));
+      grid-template-columns: repeat(4, minmax(0, 1fr));
       gap: 14px;
+      margin-bottom: 18px;
     }
 
-    .card {
-      background: var(--panel);
-      backdrop-filter: blur(12px);
-      border: 1px solid var(--border-soft);
-      border-radius: var(--radius);
-      padding: 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
+    .kpi-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 16px 18px;
+      backdrop-filter: blur(10px);
+      transition: border-color 0.2s ease, transform 0.2s ease;
+    }
+
+    .kpi-card:hover {
+      border-color: var(--border-active);
+      transform: translateY(-1px);
     }
 
     .kpi-label {
-      font-size: 12px;
-      color: var(--muted);
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+      font-weight: 600;
     }
 
     .kpi-value {
-      font-size: 22px;
+      font-size: 1.45rem;
       font-weight: 800;
-      color: var(--gold);
+      color: var(--gold-bright);
     }
 
-    .module-panel {
-      display: none;
-      flex-direction: column;
-      gap: 16px;
+    .kpi-value.neg {
+      color: var(--danger);
     }
 
-    .module-panel.active {
-      display: flex;
+    .kpi-value.pos {
+      color: var(--success);
     }
 
+    /* Painéis e grades */
     .grid-2 {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      grid-template-columns: 1.35fr 1fr;
       gap: 16px;
+      margin-bottom: 16px;
     }
 
-    .form-row {
+    .panel {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 18px 20px;
+      backdrop-filter: blur(12px);
+      margin-bottom: 16px;
+    }
+
+    .panel-title {
+      font-size: 1rem;
+      font-weight: 800;
+      color: var(--gold-bright);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .module-section {
+      display: none;
+    }
+
+    .module-section.active {
+      display: block;
+    }
+
+    /* Tabelas e formulários */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.86rem;
+    }
+
+    th, td {
+      padding: 10px 8px;
+      text-align: left;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    th {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+    }
+
+    .form-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
       gap: 10px;
+      margin-bottom: 12px;
     }
 
     input, select, textarea {
       width: 100%;
-      background: rgba(10, 10, 14, 0.85);
-      border: 1px solid var(--border-soft);
-      color: var(--text);
-      border-radius: 10px;
+      background: rgba(8, 8, 11, 0.72);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
       padding: 9px 11px;
-      font-size: 13px;
+      color: var(--text-main);
+      font-size: 0.86rem;
+      outline: none;
     }
 
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 13px;
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--gold);
     }
 
-    th, td {
-      padding: 9px 8px;
-      border-bottom: 1px solid var(--border-soft);
-      text-align: left;
-    }
-
-    th {
-      color: var(--muted);
-      font-size: 11px;
-      text-transform: uppercase;
-    }
-
-    .badge {
+    .pill {
       display: inline-block;
-      padding: 2px 8px;
+      padding: 3px 9px;
       border-radius: 999px;
-      font-size: 11px;
+      font-size: 0.74rem;
       font-weight: 700;
-      background: rgba(250, 204, 21, 0.14);
-      color: var(--gold);
+      background: rgba(245, 183, 0, 0.14);
+      color: var(--gold-bright);
+      border: 1px solid rgba(245, 183, 0, 0.28);
     }
 
-    .lock-screen {
+    .backdrop-mobile {
+      display: none;
       position: fixed;
       inset: 0;
-      z-index: 50;
-      background: rgba(9, 9, 12, 0.96);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
+      background: rgba(0, 0, 0, 0.65);
+      z-index: 25;
     }
 
-    .lock-screen.open {
-      display: flex;
+    .backdrop-mobile.active {
+      display: block;
     }
 
-    .lock-box {
-      width: 100%;
-      max-width: 360px;
-      background: var(--panel-strong);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 24px;
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-      text-align: center;
-    }
-
-    @media (max-width: 860px) {
-      .app-shell {
+    @media (max-width: 980px) {
+      .kpi-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+      .grid-2 {
         grid-template-columns: 1fr;
       }
+    }
 
+    @media (max-width: 768px) {
       .sidebar {
-        position: static;
-        height: auto;
-        border-right: none;
-        border-bottom: 1px solid var(--border-soft);
+        position: fixed;
+        left: 0;
+        top: 0;
+        transform: translateX(-100%);
       }
-
-      .nav-list {
-        flex-direction: row;
-        overflow-x: auto;
-        padding-bottom: 4px;
+      .sidebar.open {
+        transform: translateX(0);
       }
-
-      .nav-btn {
-        width: auto;
-        white-space: nowrap;
+      .menu-toggle {
+        display: inline-flex;
       }
-
       .main-area {
-        padding: 14px 14px 40px;
+        padding: 14px 14px 36px;
       }
     }
-
-    :root {
-      --gold: #f2b632;
-      --gold-deep: #bd7e16;
-      --panel: rgba(13, 14, 19, 0.78);
-      --panel-strong: rgba(17, 18, 25, 0.94);
-      --border: rgba(242, 182, 50, 0.25);
-      --border-soft: rgba(255, 255, 255, 0.09);
-      --radius: 18px;
-    }
-    body {
-      background:
-        radial-gradient(ellipse at 12% 12%, rgba(35, 47, 68, .28), transparent 34%),
-        radial-gradient(ellipse at 88% 82%, rgba(158, 103, 24, .12), transparent 36%),
-        #08090d;
-    }
-    .sidebar, .topbar, .card {
-      box-shadow: 0 18px 55px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.025);
-    }
-    .brand-box { background: linear-gradient(135deg, rgba(242,182,50,.11), rgba(242,182,50,.025)); }
-    .brand-logo-wrap { background: rgba(5,6,9,.75); }
-    .brand-logo-wrap img { object-fit: contain; padding: 3px; }
-    .brand-title { letter-spacing: .09em; }
-    .nav-btn { min-height: 42px; }
-    .nav-btn.active { box-shadow: inset 3px 0 0 var(--gold); }
-    .card { transition: transform .18s ease, border-color .18s ease, background .18s ease; }
-    .card:hover { transform: translateY(-2px); border-color: rgba(242,182,50,.24); }
-    .kpi-value { letter-spacing: -.035em; }
-    input:focus, select:focus, textarea:focus {
-      outline: 2px solid rgba(242,182,50,.38);
-      border-color: rgba(242,182,50,.62);
-    }
-    .btn { transition: transform .15s ease, filter .15s ease, border-color .15s ease; }
-    .btn:hover { transform: translateY(-1px); filter: brightness(1.08); }
-    #smokeCanvas { opacity: .92; }
-    @media (max-width: 860px) {
-      .sidebar { backdrop-filter: blur(18px); }
-      .main-area { padding-bottom: max(32px, env(safe-area-inset-bottom)); }
-    }
-    @media (prefers-reduced-motion: reduce) {
-      *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; }
-    }
-
   </style>
 </head>
 <body>
-  <canvas id="smokeCanvas" aria-hidden="true"></canvas>
+  <canvas id="smokeCanvas"></canvas>
+  <div class="ambient-overlay"></div>
+
+  <!-- Tela PIN -->
+  <div id="lockScreen">
+    <div class="lock-card">
+      <img src="logo-papato.png" alt="Papato Tabacaria" class="lock-logo" onerror="this.style.display='none'" />
+      <div class="lock-title">PAPATO GESTÃO</div>
+      <div class="lock-sub">Acesso restrito da administração • Reino da Brisa</div>
+      <input type="password" id="pinInput" class="pin-input" maxlength="8" placeholder="••••" inputmode="numeric" />
+      <button class="btn btn-gold" style="width:100%" onclick="unlockApp()">Entrar no Painel</button>
+      <div id="pinError" style="color:var(--danger);font-size:0.8rem;margin-top:10px;min-height:18px;"></div>
+    </div>
+  </div>
+
+  <div id="mobileBackdrop" class="backdrop-mobile" onclick="toggleSidebar(false)"></div>
 
   <div class="app-shell">
-    <aside class="sidebar">
+    <!-- Sidebar com os 11 módulos -->
+    <aside id="sidebar" class="sidebar">
       <div class="brand-box">
-        <div class="brand-logo-wrap" data-logo-box>
-          <svg class="fallback-emblem" width="28" height="28" viewBox="0 0 32 32" fill="none">
-            <polygon points="16,3 28,10 28,22 16,29 4,22 4,10" stroke="#facc15" stroke-width="2.2" fill="rgba(250,204,21,0.12)"/>
-            <text x="16" y="20" text-anchor="middle" fill="#facc15" font-size="12" font-weight="800">P</text>
-          </svg>
-          <img data-logo-img alt="Logo Papato Tabacaria" />
+        <div id="brandLogoWrap" class="brand-logo-wrap">
+          <img id="brandLogoImg" src="logo-papato.png" alt="Logo Papato Tabacaria" onload="this.parentElement.classList.remove('missing')" onerror="this.parentElement.classList.add('missing')" />
+          <span class="brand-fallback-badge">PT</span>
         </div>
         <div>
-          <div class="brand-title">PAPATO GESTÃO</div>
-          <div class="brand-sub">Tabacaria • ERP & PDV</div>
+          <div class="brand-name">PAPATO GESTÃO</div>
+          <div class="brand-tagline">Reino da Brisa • ERP &amp; PDV</div>
         </div>
       </div>
 
-      <nav class="nav-list" id="navMenu">
-        <button class="nav-btn active" data-mod="dashboard" type="button">1. Dashboard</button>
-        <button class="nav-btn" data-mod="pdv" type="button">2. Caixa e PDV</button>
-        <button class="nav-btn" data-mod="financeiro" type="button">3. Financeiro</button>
-        <button class="nav-btn" data-mod="estoque" type="button">4. Estoque</button>
-        <button class="nav-btn" data-mod="produtos" type="button">5. Produtos e Preços</button>
-        <button class="nav-btn" data-mod="vendas" type="button">6. Vendas e Pedidos</button>
-        <button class="nav-btn" data-mod="clientes" type="button">7. Clientes — CRM</button>
-        <button class="nav-btn" data-mod="fornecedores" type="button">8. Fornecedores</button>
-        <button class="nav-btn" data-mod="integracao" type="button">9. Integração Site</button>
-        <button class="nav-btn" data-mod="relatorios" type="button">10. Relatórios</button>
-        <button class="nav-btn" data-mod="config" type="button">11. Configurações</button>
+      <nav class="nav-list" id="navList">
+        <button class="nav-btn active" data-mod="dashboard" onclick="switchModule('dashboard', this)">1. Dashboard</button>
+        <button class="nav-btn" data-mod="pdv" onclick="switchModule('pdv', this)">2. Caixa e PDV</button>
+        <button class="nav-btn" data-mod="financeiro" onclick="switchModule('financeiro', this)">3. Financeiro</button>
+        <button class="nav-btn" data-mod="estoque" onclick="switchModule('estoque', this)">4. Estoque</button>
+        <button class="nav-btn" data-mod="produtos" onclick="switchModule('produtos', this)">5. Produtos e Preços</button>
+        <button class="nav-btn" data-mod="vendas" onclick="switchModule('vendas', this)">6. Vendas e Pedidos</button>
+        <button class="nav-btn" data-mod="clientes" onclick="switchModule('clientes', this)">7. Clientes — CRM</button>
+        <button class="nav-btn" data-mod="fornecedores" onclick="switchModule('fornecedores', this)">8. Fornecedores</button>
+        <button class="nav-btn" data-mod="integracao" onclick="switchModule('integracao', this)">9. Integração Site</button>
+        <button class="nav-btn" data-mod="relatorios" onclick="switchModule('relatorios', this)">10. Relatórios</button>
+        <button class="nav-btn" data-mod="configuracoes" onclick="switchModule('configuracoes', this)">11. Configurações</button>
       </nav>
+
+      <div class="sidebar-footer">
+        Papato Tabacaria • 4:20 Ritual<br/>
+        Salve na Tela de Início do iPhone
+      </div>
     </aside>
 
+    <!-- Conteúdo -->
     <main class="main-area">
       <header class="topbar">
-        <div>
-          <h1 id="pageTitle" style="font-size:18px;">1. Dashboard — Visão geral</h1>
-          <span class="kpi-label" id="syncClock">Sincronizado localmente</span>
+        <div class="topbar-left">
+          <button class="menu-toggle" onclick="toggleSidebar()" aria-label="Menu">☰</button>
+          <div>
+            <div id="moduleTitle" class="page-title">1. Dashboard — Visão geral</div>
+            <div id="moduleSubtitle" class="page-subtitle">Papato Tabacaria • Atualizado agora</div>
+          </div>
         </div>
+
         <div class="topbar-actions">
-          <button class="btn" id="toggleSmokeBtn" type="button">Neblina: ON</button>
-          <button class="btn" id="exportJsonBtn" type="button">Backup JSON</button>
-          <button class="btn btn-gold" id="logoutBtn" type="button">Sair com segurança</button>
+          <button id="smokeBtn" class="btn" onclick="toggleSmoke()">Neblina: ON</button>
+          <button class="btn" onclick="exportBackup()">Backup JSON</button>
+          <button class="btn btn-gold" onclick="lockApp()">Sair com segurança</button>
         </div>
       </header>
 
       <!-- 1. DASHBOARD -->
-      <section class="module-panel active" id="mod-dashboard">
-        <div class="grid-kpis" id="kpiGrid"></div>
+      <section id="mod-dashboard" class="module-section active">
+        <div class="kpi-grid">
+          <div class="kpi-card">
+            <div class="kpi-label">Faturamento Total</div>
+            <div id="kpiFaturamento" class="kpi-value">R$ 0,00</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Lucro Bruto Est.</div>
+            <div id="kpiLucroBruto" class="kpi-value">R$ 0,00</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Lucro Líquido Est.</div>
+            <div id="kpiLucroLiquido" class="kpi-value">R$ 0,00</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Pedidos Pendentes</div>
+            <div id="kpiPendentes" class="kpi-value">0</div>
+          </div>
+        </div>
+
         <div class="grid-2">
-          <div class="card">
-            <h3>Produtos mais vendidos</h3>
+          <div class="panel">
+            <div class="panel-title">Produtos mais vendidos</div>
             <table>
-              <thead><tr><th>Produto</th><th>Qtd</th><th>Receita</th></tr></thead>
+              <thead>
+                <tr>
+                  <th>Produto</th>
+                  <th>Qtd</th>
+                  <th>Receita</th>
+                </tr>
+              </thead>
               <tbody id="topProductsBody"></tbody>
             </table>
           </div>
-          <div class="card">
-            <h3>Alertas e metas do mês</h3>
-            <div id="alertsList" style="display:flex;flex-direction:column;gap:8px;font-size:13px;"></div>
+
+          <div class="panel">
+            <div class="panel-title">Alertas e metas do mês</div>
+            <p id="metaResumo" style="margin-bottom:10px;font-size:0.9rem;"></p>
+            <p id="estoqueAlertaResumo" style="font-size:0.86rem;color:var(--text-muted);"></p>
           </div>
         </div>
       </section>
 
       <!-- 2. CAIXA E PDV -->
-      <section class="module-panel" id="mod-pdv">
-        <div class="grid-2">
-          <div class="card">
-            <h3>Status do Caixa & Movimentação</h3>
-            <div style="display:flex;gap:8px;flex-wrap:wrap;">
-              <button class="btn btn-gold" id="openCashBtn" type="button">Abrir Caixa</button>
-              <button class="btn" id="closeCashBtn" type="button">Fechar Caixa</button>
-              <span class="badge" id="cashStatusBadge">Caixa Fechado</span>
-            </div>
-            <form id="cashMoveForm" class="form-row">
-              <select id="cashMoveType">
-                <option value="entrada">Entrada</option>
-                <option value="sangria">Sangria</option>
-                <option value="suprimento">Suprimento</option>
-              </select>
-              <input type="number" step="0.01" id="cashMoveAmount" placeholder="Valor (R$)" required />
-              <input type="text" id="cashMoveNote" placeholder="Motivo / obs" />
-              <button class="btn btn-gold" type="submit">Registrar</button>
-            </form>
+      <section id="mod-pdv" class="module-section">
+        <div class="panel">
+          <div class="panel-title">2. Caixa e PDV — Nova Venda Rápida</div>
+          <div class="form-grid">
+            <select id="pdvProduto"></select>
+            <input type="number" id="pdvQtd" min="1" value="1" placeholder="Quantidade" />
+            <input type="text" id="pdvCliente" placeholder="Cliente (opcional)" />
+            <select id="pdvPagamento">
+              <option value="PIX">PIX</option>
+              <option value="Dinheiro">Dinheiro</option>
+              <option value="Cartão">Cartão</option>
+              <option value="WhatsApp / Delivery">WhatsApp / Delivery</option>
+            </select>
+            <button class="btn btn-gold" onclick="registrarVendaPDV()">Lançar Venda</button>
           </div>
-
-          <div class="card">
-            <h3>Venda Rápida (PDV Presencial)</h3>
-            <form id="pdvSaleForm" class="form-row">
-              <select id="pdvProductSelect"></select>
-              <input type="number" min="1" value="1" id="pdvQty" placeholder="Qtd" required />
-              <select id="pdvPayment">
-                <option value="Pix">Pix</option>
-                <option value="Dinheiro">Dinheiro</option>
-                <option value="Cartão">Cartão</option>
-              </select>
-              <input type="text" id="pdvCustomer" placeholder="Cliente (opcional)" />
-              <button class="btn btn-gold" type="submit">Lançar Venda</button>
-            </form>
-          </div>
-        </div>
-
-        <div class="card">
-          <h3>Histórico de operações do caixa</h3>
-          <table>
-            <thead><tr><th>Hora</th><th>Tipo</th><th>Detalhe</th><th>Valor</th></tr></thead>
-            <tbody id="cashHistoryBody"></tbody>
-          </table>
+          <div id="pdvFeedback" style="font-size:0.85rem;color:var(--gold-bright);"></div>
         </div>
       </section>
 
       <!-- 3. FINANCEIRO -->
-      <section class="module-panel" id="mod-financeiro">
-        <div class="card">
-          <h3>Lançamento Financeiro & Fluxo de Caixa</h3>
-          <form id="finForm" class="form-row">
-            <select id="finKind">
-              <option value="receita">Receita</option>
-              <option value="despesa_fixa">Despesa Fixa</option>
-              <option value="despesa_variavel">Despesa Variável</option>
+      <section id="mod-financeiro" class="module-section">
+        <div class="panel">
+          <div class="panel-title">3. Financeiro — Entradas e Saídas</div>
+          <div class="form-grid">
+            <select id="finTipo">
+              <option value="saida">Despesa / Saída</option>
+              <option value="entrada">Receita / Entrada</option>
             </select>
-            <input type="text" id="finDesc" placeholder="Descrição (ex.: Luz, Fornecedor)" required />
-            <input type="number" step="0.01" id="finVal" placeholder="Valor (R$)" required />
-            <button class="btn btn-gold" type="submit">Adicionar</button>
-          </form>
-        </div>
-        <div class="card" id="dreSummary"></div>
-        <div class="card">
+            <input type="text" id="finDescricao" placeholder="Descrição (ex: Aluguel, Fornecedor, Embalagem)" />
+            <input type="number" id="finValor" step="0.01" placeholder="Valor (R$)" />
+            <button class="btn btn-gold" onclick="adicionarLancamentoFin()">Salvar Lançamento</button>
+          </div>
           <table>
-            <thead><tr><th>Tipo</th><th>Descrição</th><th>Valor</th></tr></thead>
-            <tbody id="finBody"></tbody>
+            <thead>
+              <tr><th>Tipo</th><th>Descrição</th><th>Valor</th></tr>
+            </thead>
+            <tbody id="finTabela"></tbody>
           </table>
         </div>
       </section>
 
       <!-- 4. ESTOQUE -->
-      <section class="module-panel" id="mod-estoque">
-        <div class="card">
-          <h3>Ajuste de Estoque / Inventário</h3>
-          <form id="stockAdjustForm" class="form-row">
-            <select id="stockProductSelect"></select>
-            <input type="number" id="stockDelta" placeholder="+/- Qtd (ex.: 10 ou -2)" required />
-            <input type="text" id="stockReason" placeholder="Motivo (compra, perda, ajuste)" required />
-            <button class="btn btn-gold" type="submit">Aplicar</button>
-          </form>
-        </div>
-        <div class="card">
+      <section id="mod-estoque" class="module-section">
+        <div class="panel">
+          <div class="panel-title">4. Controle de Estoque</div>
           <table>
-            <thead><tr><th>Produto</th><th>SKU</th><th>Saldo</th><th>Mínimo</th><th>Custo Total</th><th>Status</th></tr></thead>
-            <tbody id="stockBody"></tbody>
+            <thead>
+              <tr><th>Produto</th><th>Categoria</th><th>Estoque Atual</th><th>Mínimo</th><th>Ação</th></tr>
+            </thead>
+            <tbody id="estoqueTabela"></tbody>
           </table>
         </div>
       </section>
 
-      <!-- 5. PRODUTOS E PRECIFICAÇÃO -->
-      <section class="module-panel" id="mod-produtos">
-        <div class="card">
-          <h3>Cadastrar / Atualizar Produto</h3>
-          <form id="productForm" class="form-row">
-            <input type="text" id="prodName" placeholder="Nome do produto" required />
-            <input type="text" id="prodSku" placeholder="SKU / Código" />
-            <input type="text" id="prodCat" placeholder="Categoria (ex.: Sedas)" required />
-            <input type="number" step="0.01" id="prodCost" placeholder="Custo (R$)" required />
-            <input type="number" step="0.01" id="prodPrice" placeholder="Venda (R$)" required />
-            <input type="number" id="prodStock" placeholder="Estoque inicial" value="10" required />
-            <button class="btn btn-gold" type="submit">Salvar Produto</button>
-          </form>
-        </div>
-        <div class="card">
+      <!-- 5. PRODUTOS E PREÇOS -->
+      <section id="mod-produtos" class="module-section">
+        <div class="panel">
+          <div class="panel-title">5. Cadastro de Produtos e Preços</div>
+          <div class="form-grid">
+            <input type="text" id="prodNome" placeholder="Nome do item (ex: Seda King Size)" />
+            <input type="text" id="prodCat" placeholder="Categoria (ex: Sedas, Bandejas)" />
+            <input type="number" id="prodCusto" step="0.01" placeholder="Custo unit. (R$)" />
+            <input type="number" id="prodPreco" step="0.01" placeholder="Preço venda (R$)" />
+            <input type="number" id="prodQtd" placeholder="Qtd inicial" />
+            <button class="btn btn-gold" onclick="adicionarProduto()">Adicionar Produto</button>
+          </div>
           <table>
-            <thead><tr><th>Produto</th><th>SKU</th><th>Custo</th><th>Venda</th><th>Margem</th><th>Estoque</th></tr></thead>
-            <tbody id="productsCatalogBody"></tbody>
+            <thead>
+              <tr><th>Produto</th><th>Categoria</th><th>Custo</th><th>Preço</th><th>Estoque</th></tr>
+            </thead>
+            <tbody id="produtosTabela"></tbody>
           </table>
         </div>
       </section>
 
       <!-- 6. VENDAS E PEDIDOS -->
-      <section class="module-panel" id="mod-vendas">
-        <div class="card">
-          <h3>Vendas e Pedidos (Site & Presencial)</h3>
+      <section id="mod-vendas" class="module-section">
+        <div class="panel">
+          <div class="panel-title">6. Histórico de Vendas e Pedidos</div>
           <table>
-            <thead><tr><th>ID</th><th>Origem</th><th>Cliente</th><th>Pgto</th><th>Total</th><th>Status</th><th>Ação</th></tr></thead>
-            <tbody id="salesBody"></tbody>
+            <thead>
+              <tr><th>Data/Hora</th><th>Cliente</th><th>Item</th><th>Qtd</th><th>Total</th><th>Status</th></tr>
+            </thead>
+            <tbody id="vendasTabela"></tbody>
           </table>
         </div>
       </section>
 
-      <!-- 7. CLIENTES — CRM -->
-      <section class="module-panel" id="mod-clientes">
-        <div class="card">
-          <h3>Cadastro de Cliente (Clube Papato)</h3>
-          <form id="crmForm" class="form-row">
-            <input type="text" id="crmName" placeholder="Nome do cliente" required />
-            <input type="text" id="crmPhone" placeholder="WhatsApp (com DDD)" required />
-            <input type="text" id="crmNote" placeholder="Preferência / observação" />
-            <button class="btn btn-gold" type="submit">Salvar Cliente</button>
-          </form>
-        </div>
-        <div class="card">
+      <!-- 7. CLIENTES CRM -->
+      <section id="mod-clientes" class="module-section">
+        <div class="panel">
+          <div class="panel-title">7. Clientes — CRM</div>
+          <div class="form-grid">
+            <input type="text" id="cliNome" placeholder="Nome do cliente" />
+            <input type="text" id="cliContato" placeholder="WhatsApp / Instagram" />
+            <input type="text" id="cliObs" placeholder="Preferência (ex: seda king, piteira)" />
+            <button class="btn btn-gold" onclick="adicionarCliente()">Salvar Cliente</button>
+          </div>
           <table>
-            <thead><tr><th>Cliente</th><th>WhatsApp</th><th>Compras</th><th>Total Gasto</th><th>Obs</th></tr></thead>
-            <tbody id="crmBody"></tbody>
+            <thead>
+              <tr><th>Nome</th><th>Contato</th><th>Preferências</th></tr>
+            </thead>
+            <tbody id="clientesTabela"></tbody>
           </table>
         </div>
       </section>
 
       <!-- 8. FORNECEDORES -->
-      <section class="module-panel" id="mod-fornecedores">
-        <div class="card">
-          <h3>Fornecedores e Compras</h3>
-          <form id="supForm" class="form-row">
-            <input type="text" id="supName" placeholder="Nome do fornecedor" required />
-            <input type="text" id="supItem" placeholder="Produto / nota" required />
-            <input type="number" step="0.01" id="supTotal" placeholder="Valor compra (R$)" required />
-            <button class="btn btn-gold" type="submit">Registrar Compra</button>
-          </form>
-        </div>
-        <div class="card">
+      <section id="mod-fornecedores" class="module-section">
+        <div class="panel">
+          <div class="panel-title">8. Fornecedores</div>
+          <div class="form-grid">
+            <input type="text" id="fornNome" placeholder="Nome do fornecedor" />
+            <input type="text" id="fornLinha" placeholder="Linha fornecida" />
+            <input type="text" id="fornContato" placeholder="Telefone / Contato" />
+            <button class="btn btn-gold" onclick="adicionarFornecedor()">Salvar Fornecedor</button>
+          </div>
           <table>
-            <thead><tr><th>Fornecedor</th><th>Item / Nota</th><th>Valor</th></tr></thead>
-            <tbody id="supBody"></tbody>
+            <thead>
+              <tr><th>Fornecedor</th><th>Linha</th><th>Contato</th></tr>
+            </thead>
+            <tbody id="fornecedoresTabela"></tbody>
           </table>
         </div>
       </section>
 
-      <!-- 9. INTEGRAÇÃO COM O SITE -->
-      <section class="module-panel" id="mod-integracao">
-        <div class="card">
-          <h3>Importar Pedido Colado do WhatsApp (Site)</h3>
-          <p class="kpi-label">Cole a mensagem do pedido recebido pelo site para lançar em Vendas e dar baixa no estoque.</p>
-          <textarea id="waOrderInput" rows="5" placeholder="Ex.: Salve, Papato! ...&#10;• 2x Seda Sadhu King Size — R$ 3,80&#10;Nome: João&#10;WhatsApp: +5571999999999"></textarea>
-          <div style="display:flex;gap:8px;flex-wrap:wrap;">
-            <button class="btn btn-gold" id="importWaBtn" type="button">Importar Pedido para Vendas</button>
-            <button class="btn" id="syncCatalogBtn" type="button">Sincronizar Catálogo Local</button>
+      <!-- 9. INTEGRAÇÃO SITE -->
+      <section id="mod-integracao" class="module-section">
+        <div class="panel">
+          <div class="panel-title">9. Integração com Site &amp; Canais</div>
+          <p style="font-size:0.9rem;color:var(--text-muted);margin-bottom:12px;">
+            Storefront: <span class="pill">papatotabacaria.pages.dev</span> • Painel: <span class="pill">paineltabacaria.pages.dev</span>
+          </p>
+          <p style="font-size:0.86rem;line-height:1.5;">
+            Use o botão <strong>Backup JSON</strong> no topo para exportar ou importar os dados da operação entre sessões e dispositivos.
+          </p>
+          <div style="margin-top:12px;">
+            <input type="file" id="importJsonInput" accept="application/json" onchange="importBackup(event)" />
           </div>
-          <div id="syncLog" style="font-size:12px;color:var(--gold);"></div>
         </div>
       </section>
 
-      <!-- 10. RELATÓRIOS E INTELIGÊNCIA -->
-      <section class="module-panel" id="mod-relatorios">
-        <div class="card">
-          <h3>Curva ABC e Inteligência de Produtos</h3>
-          <div style="display:flex;gap:8px;flex-wrap:wrap;">
-            <button class="btn btn-gold" id="exportCsvBtn" type="button">Exportar CSV (Excel)</button>
-            <button class="btn" id="printReportBtn" type="button">Imprimir / Salvar PDF</button>
-          </div>
-          <table>
-            <thead><tr><th>Produto</th><th>Receita Gerada</th><th>Participação</th><th>Curva ABC</th></tr></thead>
-            <tbody id="abcBody"></tbody>
-          </table>
+      <!-- 10. RELATÓRIOS -->
+      <section id="mod-relatorios" class="module-section">
+        <div class="panel">
+          <div class="panel-title">10. Relatórios Gerenciais</div>
+          <div id="relatorioResumo" style="font-size:0.9rem;line-height:1.7;"></div>
         </div>
       </section>
 
-      <!-- 11. CONFIGURAÇÕES E SEGURANÇA -->
-      <section class="module-panel" id="mod-config">
-        <div class="card">
-          <h3>Configurações da Loja & Segurança</h3>
-          <div class="form-row">
-            <input type="text" id="cfgStoreName" placeholder="Nome da tabacaria" />
-            <input type="number" step="0.01" id="cfgGoal" placeholder="Meta mensal (R$)" />
-              <button class="btn btn-gold" id="saveCfgBtn" type="button">Salvar Configurações</button>
+      <!-- 11. CONFIGURAÇÕES -->
+      <section id="mod-configuracoes" class="module-section">
+        <div class="panel">
+          <div class="panel-title">11. Configurações do Sistema</div>
+          <div class="form-grid">
+            <input type="number" id="cfgMeta" placeholder="Meta mensal (R$)" />
+            <input type="text" id="cfgPin" placeholder="Novo PIN de acesso (opcional)" />
+            <button class="btn btn-gold" onclick="salvarConfig()">Salvar Configurações</button>
           </div>
-          <h4 style="margin-top:8px;">Registro de atividades recentes</h4>
-          <ul id="auditList" style="padding-left:18px;font-size:12px;color:var(--muted);display:flex;flex-direction:column;gap:4px;"></ul>
+          <div style="margin-top:14px;">
+            <button class="btn btn-danger" onclick="resetarDados()">Resetar Dados de Demonstração</button>
+          </div>
         </div>
       </section>
     </main>
   </div>
 
   <script>
-    (() => {
-      "use strict";
-      const STORAGE_KEY = "papato_gestao_v1";
-      const LOGO_URLS = ["/assets/img/logo.webp"];
+    const STORAGE_KEY = 'papato_gestao_state_v1';
 
-      const defaultState = {
-        config: { storeName: "Papato Tabacaria", monthlyGoal: 6000, smokeOn: true },
-        cashOpen: false,
-        cashHistory: [],
-        products: [
-          { id: "p1", name: "Seda Sadhu King Size", sku: "SED-SAD-KS", category: "Sedas", cost: 0.75, price: 1.90, stock: 65, minStock: 15, soldQty: 28 },
-          { id: "p2", name: "Piteira de Vidro Esfera", sku: "PIT-VID-ESF", category: "Piteiras", cost: 8.50, price: 19.90, stock: 12, minStock: 5, soldQty: 11 },
-          { id: "p3", name: "Bandeja Bros (Média)", sku: "BAN-BRO-MED", category: "Bandejas", cost: 14.00, price: 29.90, stock: 6, minStock: 3, soldQty: 7 },
-          { id: "p4", name: "Dichavador Tonabê", sku: "DIC-TON-01", category: "Dichavadores", cost: 5.50, price: 12.90, stock: 18, minStock: 6, soldQty: 14 }
-        ],
-        finance: [
-          { kind: "despesa_fixa", desc: "Internet / Operação", val: 120 }
-        ],
-        sales: [
-          { id: "PED-101", origin: "Site", customer: "Cliente Teste", payment: "Pix", total: 39.80, status: "Entregue", items: [] }
-        ],
-        customers: [
-          { name: "Cliente Teste", phone: "71999999999", orders: 1, spent: 39.80, note: "Prefere sedas e piteiras" }
-        ],
-        suppliers: [
-          { name: "Distribuidora Central", item: "Sedas e Piteiras", total: 320 }
-        ],
-        audit: ["Painel inicializado com dados base da Papato Tabacaria."]
-      };
+    const DEFAULT_STATE = {
+      pin: '4200',
+      locked: false,
+      smokeEnabled: true,
+      metaMensal: 6000,
+      produtos: [
+        { id: 1, nome: 'Seda Sadhu King Size', categoria: 'Sedas', custo: 1.1, preco: 3.5, estoque: 45, minimo: 10 },
+        { id: 2, nome: 'Dichavador Tonabé', categoria: 'Acessórios', custo: 8.0, preco: 19.9, estoque: 18, minimo: 5 },
+        { id: 3, nome: 'Piteira de Vidro Esfera', categoria: 'Piteiras', custo: 9.5, preco: 22.0, estoque: 14, minimo: 5 },
+        { id: 4, nome: 'Bandeja Bros (Média)', categoria: 'Bandejas', custo: 18.0, preco: 39.9, estoque: 9, minimo: 3 }
+      ],
+      vendas: [
+        { id: 1, data: 'Hoje', cliente: 'Balcão', produtoId: 1, nomeProduto: 'Seda Sadhu King Size', qtd: 4, total: 14.0, custoTotal: 4.4, status: 'Concluído' },
+        { id: 2, data: 'Hoje', cliente: 'Sessão 4:20', produtoId: 2, nomeProduto: 'Dichavador Tonabé', qtd: 1, total: 19.9, custoTotal: 8.0, status: 'Pendente' }
+      ],
+      lancamentos: [
+        { id: 1, tipo: 'saida', descricao: 'Reposição inicial de embalagens', valor: 120.0 }
+      ],
+      clientes: [
+        { id: 1, nome: 'Cliente VIP Reino', contato: '@papatotabacaria', obs: 'Prefere sedas king size e piteira de vidro' }
+      ],
+      fornecedores: [
+        { id: 1, nome: 'Distribuidora Headshop Sul', linha: 'Sedas, piteiras e bandejas', contato: 'WhatsApp Comercial' }
+      ]
+    };
 
-      let state = loadState();
-      if (state.config) delete state.config.pin;
+    let state = loadState();
 
-      function loadState() {
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return structuredClone(DEFAULT_STATE);
+        return { ...structuredClone(DEFAULT_STATE), ...JSON.parse(raw) };
+      } catch {
+        return structuredClone(DEFAULT_STATE);
+      }
+    }
+
+    function saveState() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
+
+    const MODULE_META = {
+      dashboard: ['1. Dashboard — Visão geral', 'Papato Tabacaria • Reino da Brisa'],
+      pdv: ['2. Caixa e PDV', 'Registro rápido de vendas no balcão ou delivery'],
+      financeiro: ['3. Financeiro', 'Controle de entradas, despesas e fluxo'],
+      estoque: ['4. Estoque', 'Acompanhamento de quantidades e estoque mínimo'],
+      produtos: ['5. Produtos e Preços', 'Catálogo, custos unitários e margem'],
+      vendas: ['6. Vendas e Pedidos', 'Histórico completo de movimentações'],
+      clientes: ['7. Clientes — CRM', 'Base de clientes e preferências de sessão'],
+      fornecedores: ['8. Fornecedores', 'Parceiros de reposição e suprimentos'],
+      integracao: ['9. Integração Site', 'Conexão com o catálogo e backup de dados'],
+      relatorios: ['10. Relatórios', 'Resumo consolidado da operação'],
+      configuracoes: ['11. Configurações', 'Metas mensais, PIN de segurança e dados']
+    };
+
+    function switchModule(mod, btnEl) {
+      document.querySelectorAll('.module-section').forEach(s => s.classList.remove('active'));
+      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+
+      const target = document.getElementById('mod-' + mod);
+      if (target) target.classList.add('active');
+      if (btnEl) btnEl.classList.add('active');
+
+      const [title, sub] = MODULE_META[mod] || ['Papato Gestão', 'Papato Tabacaria'];
+      document.getElementById('moduleTitle').textContent = title;
+      document.getElementById('moduleSubtitle').textContent = sub;
+
+      renderAll();
+      toggleSidebar(false);
+    }
+
+    function toggleSidebar(force) {
+      const sb = document.getElementById('sidebar');
+      const bd = document.getElementById('mobileBackdrop');
+      const open = typeof force === 'boolean' ? force : !sb.classList.contains('open');
+      sb.classList.toggle('open', open);
+      bd.classList.toggle('active', open);
+    }
+
+    function fmtBRL(v) {
+      return Number(v || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+    }
+
+    function renderAll() {
+      const faturamento = state.vendas.reduce((acc, v) => acc + Number(v.total || 0), 0);
+      const custoVendas = state.vendas.reduce((acc, v) => acc + Number(v.custoTotal || 0), 0);
+      const despesas = state.lancamentos
+        .filter(l => l.tipo === 'saida')
+        .reduce((acc, l) => acc + Number(l.valor || 0), 0);
+      const outrasEntradas = state.lancamentos
+        .filter(l => l.tipo === 'entrada')
+        .reduce((acc, l) => acc + Number(l.valor || 0), 0);
+
+      const lucroBruto = faturamento - custoVendas;
+      const lucroLiquido = faturamento + outrasEntradas - custoVendas - despesas;
+      const pendentes = state.vendas.filter(v => v.status !== 'Concluído').length;
+
+      const kpiFat = document.getElementById('kpiFaturamento');
+      const kpiBruto = document.getElementById('kpiLucroBruto');
+      const kpiLiq = document.getElementById('kpiLucroLiquido');
+      const kpiPend = document.getElementById('kpiPendentes');
+
+      kpiFat.textContent = fmtBRL(faturamento + outrasEntradas);
+      kpiBruto.textContent = fmtBRL(lucroBruto);
+      kpiLiq.textContent = fmtBRL(lucroLiquido);
+      kpiPend.textContent = String(pendentes);
+
+      kpiBruto.className = 'kpi-value ' + (lucroBruto < 0 ? 'neg' : 'pos');
+      kpiLiq.className = 'kpi-value ' + (lucroLiquido < 0 ? 'neg' : 'pos');
+
+      // Top produtos
+      const rankMap = {};
+      state.vendas.forEach(v => {
+        if (!rankMap[v.nomeProduto]) rankMap[v.nomeProduto] = { nome: v.nomeProduto, qtd: 0, receita: 0 };
+        rankMap[v.nomeProduto].qtd += Number(v.qtd || 0);
+        rankMap[v.nomeProduto].receita += Number(v.total || 0);
+      });
+      const topList = Object.values(rankMap).sort((a, b) => b.receita - a.receita);
+      document.getElementById('topProductsBody').innerHTML = topList.map(item => `
+        <tr>
+          <td>${item.nome}</td>
+          <td>${item.qtd}</td>
+          <td>${fmtBRL(item.receita)}</td>
+        </tr>
+      `).join('') || '<tr><td colspan="3">Sem vendas registradas ainda.</td></tr>';
+
+      // Meta e estoque
+      const pctMeta = state.metaMensal > 0 ? Math.round(((faturamento + outrasEntradas) / state.metaMensal) * 100) : 0;
+      document.getElementById('metaResumo').innerHTML =
+        `Meta mensal (${fmtBRL(state.metaMensal)}): <strong>${pctMeta}%</strong> atingido.`;
+
+      const baixos = state.produtos.filter(p => Number(p.estoque) <= Number(p.minimo || 3));
+      document.getElementById('estoqueAlertaResumo').textContent = baixos.length
+        ? `Atenção: ${baixos.map(b => b.nome).join(', ')} no limite ou abaixo do mínimo.`
+        : 'Todos os produtos acima do estoque mínimo.';
+
+      // Select PDV
+      document.getElementById('pdvProduto').innerHTML = state.produtos.map(p =>
+        `<option value="${p.id}">${p.nome} — ${fmtBRL(p.preco)} (${p.estoque} un)</option>`
+      ).join('');
+
+      // Estoque
+      document.getElementById('estoqueTabela').innerHTML = state.produtos.map(p => `
+        <tr>
+          <td>${p.nome}</td>
+          <td>${p.categoria || 'Geral'}</td>
+          <td>${p.estoque}</td>
+          <td>${p.minimo || 3}</td>
+          <td><button class="btn" onclick="ajustarEstoque(${p.id}, 5)">+5 un</button></td>
+        </tr>
+      `).join('');
+
+      // Produtos
+      document.getElementById('produtosTabela').innerHTML = state.produtos.map(p => `
+        <tr>
+          <td>${p.nome}</td>
+          <td>${p.categoria || 'Geral'}</td>
+          <td>${fmtBRL(p.custo)}</td>
+          <td>${fmtBRL(p.preco)}</td>
+          <td>${p.estoque}</td>
+        </tr>
+      `).join('');
+
+      // Vendas
+      document.getElementById('vendasTabela').innerHTML = state.vendas.slice().reverse().map(v => `
+        <tr>
+          <td>${v.data}</td>
+          <td>${v.cliente}</td>
+          <td>${v.nomeProduto}</td>
+          <td>${v.qtd}</td>
+          <td>${fmtBRL(v.total)}</td>
+          <td><span class="pill">${v.status}</span></td>
+        </tr>
+      `).join('');
+
+      // Financeiro
+      document.getElementById('finTabela').innerHTML = state.lancamentos.slice().reverse().map(l => `
+        <tr>
+          <td><span class="pill">${l.tipo.toUpperCase()}</span></td>
+          <td>${l.descricao}</td>
+          <td>${fmtBRL(l.valor)}</td>
+        </tr>
+      `).join('');
+
+      // Clientes
+      document.getElementById('clientesTabela').innerHTML = state.clientes.map(c => `
+        <tr><td>${c.nome}</td><td>${c.contato}</td><td>${c.obs}</td></tr>
+      `).join('');
+
+      // Fornecedores
+      document.getElementById('fornecedoresTabela').innerHTML = state.fornecedores.map(f => `
+        <tr><td>${f.nome}</td><td>${f.linha}</td><td>${f.contato}</td></tr>
+      `).join('');
+
+      // Relatórios
+      document.getElementById('relatorioResumo').innerHTML = `
+        <div>• Vendas lançadas: <strong>${state.vendas.length}</strong></div>
+        <div>• Faturamento bruto em vendas: <strong>${fmtBRL(faturamento)}</strong></div>
+        <div>• Despesas lançadas: <strong>${fmtBRL(despesas)}</strong></div>
+        <div>• Resultado líquido estimado: <strong>${fmtBRL(lucroLiquido)}</strong></div>
+      `;
+
+      document.getElementById('cfgMeta').value = state.metaMensal;
+      updateSmokeButton();
+    }
+
+    function registrarVendaPDV() {
+      const prodId = Number(document.getElementById('pdvProduto').value);
+      const qtd = Math.max(1, Number(document.getElementById('pdvQtd').value || 1));
+      const cliente = document.getElementById('pdvCliente').value.trim() || 'Balcão';
+      const pag = document.getElementById('pdvPagamento').value;
+      const prod = state.produtos.find(p => p.id === prodId);
+      if (!prod) return;
+
+      const total = Number(prod.preco) * qtd;
+      const custoTotal = Number(prod.custo || 0) * qtd;
+      prod.estoque = Math.max(0, Number(prod.estoque) - qtd);
+
+      state.vendas.push({
+        id: Date.now(),
+        data: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+        cliente: `${cliente} (${pag})`,
+        produtoId: prod.id,
+        nomeProduto: prod.nome,
+        qtd,
+        total,
+        custoTotal,
+        status: 'Concluído'
+      });
+
+      document.getElementById('pdvCliente').value = '';
+      document.getElementById('pdvFeedback').textContent = `Venda lançada: ${qtd}x ${prod.nome} (${fmtBRL(total)})!`;
+      saveState();
+      renderAll();
+    }
+
+    function ajustarEstoque(id, delta) {
+      const p = state.produtos.find(item => item.id === id);
+      if (!p) return;
+      p.estoque = Math.max(0, Number(p.estoque) + delta);
+      saveState();
+      renderAll();
+    }
+
+    function adicionarProduto() {
+      const nome = document.getElementById('prodNome').value.trim();
+      const cat = document.getElementById('prodCat').value.trim() || 'Geral';
+      const custo = Number(document.getElementById('prodCusto').value || 0);
+      const preco = Number(document.getElementById('prodPreco').value || 0);
+      const qtd = Number(document.getElementById('prodQtd').value || 0);
+      if (!nome || preco <= 0) return;
+
+      state.produtos.push({ id: Date.now(), nome, categoria: cat, custo, preco, estoque: qtd, minimo: 3 });
+      ['prodNome', 'prodCat', 'prodCusto', 'prodPreco', 'prodQtd'].forEach(id => document.getElementById(id).value = '');
+      saveState();
+      renderAll();
+    }
+
+    function adicionarLancamentoFin() {
+      const tipo = document.getElementById('finTipo').value;
+      const descricao = document.getElementById('finDescricao').value.trim();
+      const valor = Number(document.getElementById('finValor').value || 0);
+      if (!descricao || valor <= 0) return;
+
+      state.lancamentos.push({ id: Date.now(), tipo, descricao, valor });
+      document.getElementById('finDescricao').value = '';
+      document.getElementById('finValor').value = '';
+      saveState();
+      renderAll();
+    }
+
+    function adicionarCliente() {
+      const nome = document.getElementById('cliNome').value.trim();
+      const contato = document.getElementById('cliContato').value.trim();
+      const obs = document.getElementById('cliObs').value.trim();
+      if (!nome) return;
+      state.clientes.push({ id: Date.now(), nome, contato, obs });
+      ['cliNome', 'cliContato', 'cliObs'].forEach(id => document.getElementById(id).value = '');
+      saveState();
+      renderAll();
+    }
+
+    function adicionarFornecedor() {
+      const nome = document.getElementById('fornNome').value.trim();
+      const linha = document.getElementById('fornLinha').value.trim();
+      const contato = document.getElementById('fornContato').value.trim();
+      if (!nome) return;
+      state.fornecedores.push({ id: Date.now(), nome, linha, contato });
+      ['fornNome', 'fornLinha', 'fornContato'].forEach(id => document.getElementById(id).value = '');
+      saveState();
+      renderAll();
+    }
+
+    function salvarConfig() {
+      const meta = Number(document.getElementById('cfgMeta').value);
+      const novoPin = document.getElementById('cfgPin').value.trim();
+      if (meta > 0) state.metaMensal = meta;
+      if (novoPin.length >= 4) state.pin = novoPin;
+      document.getElementById('cfgPin').value = '';
+      saveState();
+      renderAll();
+    }
+
+    function resetarDados() {
+      state = structuredClone(DEFAULT_STATE);
+      saveState();
+      renderAll();
+    }
+
+    function exportBackup() {
+      const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `papato-gestao-backup-${new Date().toISOString().slice(0, 10)}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function importBackup(ev) {
+      const file = ev.target.files?.[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
         try {
-          const raw = localStorage.getItem(STORAGE_KEY);
-          if (!raw) return structuredClone(defaultState);
-          return { ...structuredClone(defaultState), ...JSON.parse(raw), config: { ...defaultState.config, ...(JSON.parse(raw).config || {}) } };
-        } catch {
-          return structuredClone(defaultState);
-        }
+          const parsed = JSON.parse(reader.result);
+          state = { ...structuredClone(DEFAULT_STATE), ...parsed };
+          saveState();
+          renderAll();
+        } catch {}
+      };
+      reader.readAsText(file);
+    }
+
+    function lockApp() {
+      state.locked = true;
+      saveState();
+      document.getElementById('lockScreen').classList.add('active');
+      document.getElementById('pinInput').value = '';
+      document.getElementById('pinError').textContent = '';
+    }
+
+    function unlockApp() {
+      const val = document.getElementById('pinInput').value.trim();
+      if (val === String(state.pin || '4200')) {
+        state.locked = false;
+        saveState();
+        document.getElementById('lockScreen').classList.remove('active');
+      } else {
+        document.getElementById('pinError').textContent = 'PIN incorreto.';
+      }
+    }
+
+    function updateSmokeButton() {
+      const btn = document.getElementById('smokeBtn');
+      const canvas = document.getElementById('smokeCanvas');
+      if (state.smokeEnabled) {
+        btn.textContent = 'Neblina: ON';
+        canvas.classList.remove('smoke-off');
+      } else {
+        btn.textContent = 'Neblina: OFF';
+        canvas.classList.add('smoke-off');
+      }
+    }
+
+    function toggleSmoke() {
+      state.smokeEnabled = !state.smokeEnabled;
+      saveState();
+      updateSmokeButton();
+    }
+
+    // Animação orgânica de fumaça / neblina no fundo
+    (function initSmoke() {
+      const canvas = document.getElementById('smokeCanvas');
+      const ctx = canvas.getContext('2d');
+      let w, h, puffs = [];
+
+      function resize() {
+        w = canvas.width = window.innerWidth;
+        h = canvas.height = window.innerHeight;
       }
 
-      function saveState(logMsg) {
-        if (logMsg) state.audit.unshift(`${new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })} — ${logMsg}`);
-        state.audit = state.audit.slice(0, 30);
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-        renderAll();
+      function createPuffs() {
+        const count = Math.min(22, Math.max(12, Math.floor((w * h) / 65000)));
+        puffs = Array.from({ length: count }, (_, idx) => ({
+          x: Math.random() * w,
+          y: Math.random() * h,
+          r: 140 + Math.random() * 210,
+          vx: (Math.random() - 0.35) * 0.45,
+          vy: -0.18 - Math.random() * 0.35,
+          alpha: 0.045 + Math.random() * 0.065,
+          warm: idx % 4 === 0
+        }));
       }
 
-      const brl = (v) => Number(v || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
-
-      // Logo com tentativa automática e fallback seguro
-      function initLogo() {
-        const imgs = document.querySelectorAll("[data-logo-img]");
-        const boxes = document.querySelectorAll("[data-logo-box]");
-        let idx = 0;
-
-        function tryNext() {
-          if (idx >= LOGO_URLS.length) return;
-          const testImg = new Image();
-          const url = LOGO_URLS[idx++];
-          testImg.onload = () => {
-            imgs.forEach((img) => { img.src = url; });
-            boxes.forEach((box) => box.classList.add("has-img"));
-            const iconLink = document.getElementById("appleTouchIcon");
-            if (iconLink) iconLink.href = url;
-          };
-          testImg.onerror = tryNext;
-          testImg.src = url;
-        }
-        tryNext();
-      }
-
-      // Neblina / fumaça em Canvas
-      const canvas = document.getElementById("smokeCanvas");
-      const ctx = canvas.getContext("2d");
-      const puffs = Array.from({ length: 24 }, (_, i) => ({
-        x: Math.random(),
-        y: Math.random(),
-        r: 140 + (i % 5) * 55,
-        vx: (Math.random() - 0.5) * 0.00028,
-        vy: -0.00012 - Math.random() * 0.00018,
-        gold: i % 4 === 0
-      }));
-
-      function resizeCanvas() {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-      }
-      window.addEventListener("resize", resizeCanvas);
-      resizeCanvas();
-
-      function drawSmoke() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        if (state.config.smokeOn) {
+      function draw() {
+        ctx.clearRect(0, 0, w, h);
+        if (state.smokeEnabled) {
           for (const p of puffs) {
             p.x += p.vx;
             p.y += p.vy;
-            if (p.y < -0.2) p.y = 1.15;
-            if (p.x < -0.2) p.x = 1.2;
-            if (p.x > 1.2) p.x = -0.2;
 
-            const cx = p.x * canvas.width;
-            const cy = p.y * canvas.height;
-            const grad = ctx.createRadialGradient(cx, cy, 10, cx, cy, p.r);
-            if (p.gold) {
-              grad.addColorStop(0, "rgba(250, 204, 21, 0.09)");
-              grad.addColorStop(1, "rgba(250, 204, 21, 0)");
+            if (p.y < -p.r) p.y = h + p.r;
+            if (p.x < -p.r) p.x = w + p.r;
+            if (p.x > w + p.r) p.x = -p.r;
+
+            const grad = ctx.createRadialGradient(p.x, p.y, p.r * 0.08, p.x, p.y, p.r);
+            if (p.warm) {
+              grad.addColorStop(0, `rgba(245, 183, 0, ${p.alpha})`);
+              grad.addColorStop(0.55, `rgba(217, 130, 0, ${p.alpha * 0.45})`);
+              grad.addColorStop(1, 'rgba(245, 183, 0, 0)');
             } else {
-              grad.addColorStop(0, "rgba(212, 212, 216, 0.08)");
-              grad.addColorStop(1, "rgba(212, 212, 216, 0)");
+              grad.addColorStop(0, `rgba(215, 222, 232, ${p.alpha})`);
+              grad.addColorStop(0.6, `rgba(140, 148, 162, ${p.alpha * 0.4})`);
+              grad.addColorStop(1, 'rgba(140, 148, 162, 0)');
             }
+
             ctx.fillStyle = grad;
             ctx.beginPath();
-            ctx.arc(cx, cy, p.r, 0, Math.PI * 2);
+            ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
             ctx.fill();
           }
         }
-        requestAnimationFrame(drawSmoke);
-      }
-      drawSmoke();
-
-      // Navegação entre módulos
-      const titles = {
-        dashboard: "1. Dashboard — Visão geral",
-        pdv: "2. Caixa e PDV",
-        financeiro: "3. Financeiro",
-        estoque: "4. Estoque",
-        produtos: "5. Produtos e Precificação",
-        vendas: "6. Vendas e Pedidos",
-        clientes: "7. Clientes — CRM",
-        fornecedores: "8. Fornecedores e Compras",
-        integracao: "9. Integração com o Site",
-        relatorios: "10. Relatórios e Inteligência",
-        config: "11. Configurações e Segurança"
-      };
-
-      document.getElementById("navMenu").addEventListener("click", (e) => {
-        const btn = e.target.closest("[data-mod]");
-        if (!btn) return;
-        const mod = btn.dataset.mod;
-        document.querySelectorAll(".nav-btn").forEach((b) => b.classList.toggle("active", b === btn));
-        document.querySelectorAll(".module-panel").forEach((p) => p.classList.toggle("active", p.id === `mod-${mod}`));
-        document.getElementById("pageTitle").textContent = titles[mod] || "Papato Gestão";
-      });
-
-      function renderAll() {
-        document.getElementById("toggleSmokeBtn").textContent = `Neblina: ${state.config.smokeOn ? "ON" : "OFF"}`;
-        document.getElementById("syncClock").textContent = `${state.config.storeName} • Atualizado às ${new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}`;
-
-        const totalSales = state.sales.filter((s) => s.status !== "Cancelado").reduce((acc, s) => acc + Number(s.total || 0), 0);
-        const totalCost = state.products.reduce((acc, p) => acc + Number(p.cost || 0) * Number(p.soldQty || 0), 0);
-        const expenses = state.finance.filter((f) => f.kind !== "receita").reduce((acc, f) => acc + Number(f.val || 0), 0);
-        const extraRev = state.finance.filter((f) => f.kind === "receita").reduce((acc, f) => acc + Number(f.val || 0), 0);
-        const grossProfit = totalSales - totalCost;
-        const netProfit = grossProfit + extraRev - expenses;
-        const pendingOrders = state.sales.filter((s) => s.status === "Pendente").length;
-
-        document.getElementById("kpiGrid").innerHTML = [
-          ["Faturamento Total", brl(totalSales)],
-          ["Lucro Bruto Est.", brl(grossProfit)],
-          ["Lucro Líquido Est.", brl(netProfit)],
-          ["Pedidos Pendentes", String(pendingOrders)]
-        ].map(([label, val]) => `<div class="card"><span class="kpi-label">${label}</span><span class="kpi-value">${val}</span></div>`).join("");
-
-        const sortedProds = [...state.products].sort((a, b) => (b.soldQty || 0) - (a.soldQty || 0));
-        document.getElementById("topProductsBody").innerHTML = sortedProds.map((p) =>
-          `<tr><td>${p.name}</td><td>${p.soldQty || 0}</td><td>${brl((p.soldQty || 0) * p.price)}</td></tr>`
-        ).join("");
-
-        const lowStock = state.products.filter((p) => p.stock <= p.minStock);
-        const goalPct = Math.min(100, Math.round((totalSales / (state.config.monthlyGoal || 1)) * 100));
-        document.getElementById("alertsList").innerHTML = [
-          `<div>Meta mensal (${brl(state.config.monthlyGoal)}): <strong>${goalPct}%</strong> atingido</div>`,
-          lowStock.length
-            ? `<div style="color:var(--warn)">Estoque baixo em: ${lowStock.map((p) => `${p.name} (${p.stock})`).join(", ")}</div>`
-            : `<div style="color:var(--ok)">Todos os produtos acima do estoque mínimo.</div>`
-        ].join("");
-
-        // Selects de PDV e Estoque
-        const prodOpts = state.products.map((p) => `<option value="${p.id}">${p.name} (${brl(p.price)}) — Est: ${p.stock}</option>`).join("");
-        document.getElementById("pdvProductSelect").innerHTML = prodOpts;
-        document.getElementById("stockProductSelect").innerHTML = prodOpts;
-
-        // Caixa
-        const badge = document.getElementById("cashStatusBadge");
-        badge.textContent = state.cashOpen ? "Caixa Aberto" : "Caixa Fechado";
-        document.getElementById("cashHistoryBody").innerHTML = state.cashHistory.map((h) =>
-          `<tr><td>${h.time}</td><td>${h.type}</td><td>${h.note || "-"}</td><td>${brl(h.amount)}</td></tr>`
-        ).join("") || `<tr><td colspan="4">Nenhuma operação registrada hoje.</td></tr>`;
-
-        // Financeiro
-        document.getElementById("dreSummary").innerHTML = `<strong>Resumo Gerencial:</strong> Receitas Operacionais ${brl(totalSales + extraRev)} | Despesas ${brl(expenses)} | Resultado Estimado ${brl(netProfit)}`;
-        document.getElementById("finBody").innerHTML = state.finance.map((f) =>
-          `<tr><td>${f.kind}</td><td>${f.desc}</td><td>${brl(f.val)}</td></tr>`
-        ).join("");
-
-        // Estoque
-        document.getElementById("stockBody").innerHTML = state.products.map((p) =>
-          `<tr><td>${p.name}</td><td>${p.sku || "-"}</td><td>${p.stock}</td><td>${p.minStock}</td><td>${brl(p.stock * p.cost)}</td><td>${p.stock <= p.minStock ? '<span class="badge">Repor</span>' : "OK"}</td></tr>`
-        ).join("");
-
-        // Produtos
-        document.getElementById("productsCatalogBody").innerHTML = state.products.map((p) => {
-          const margin = p.price > 0 ? Math.round(((p.price - p.cost) / p.price) * 100) : 0;
-          return `<tr><td>${p.name}</td><td>${p.sku || "-"}</td><td>${brl(p.cost)}</td><td>${brl(p.price)}</td><td>${margin}%</td><td>${p.stock}</td></tr>`;
-        }).join("");
-
-        // Vendas
-        document.getElementById("salesBody").innerHTML = state.sales.map((s, idx) =>
-          `<tr><td>${s.id}</td><td>${s.origin}</td><td>${s.customer}</td><td>${s.payment}</td><td>${brl(s.total)}</td><td>${s.status}</td><td><button class="btn" data-toggle-sale="${idx}" type="button">Avançar status</button></td></tr>`
-        ).join("");
-
-        // CRM
-        document.getElementById("crmBody").innerHTML = state.customers.map((c) =>
-          `<tr><td>${c.name}</td><td>${c.phone}</td><td>${c.orders}</td><td>${brl(c.spent)}</td><td>${c.note || "-"}</td></tr>`
-        ).join("");
-
-        // Fornecedores
-        document.getElementById("supBody").innerHTML = state.suppliers.map((sup) =>
-          `<tr><td>${sup.name}</td><td>${sup.item}</td><td>${brl(sup.total)}</td></tr>`
-        ).join("");
-
-        // Curva ABC
-        const sumRev = sortedProds.reduce((a, b) => a + (b.soldQty || 0) * b.price, 0) || 1;
-        let accPct = 0;
-        document.getElementById("abcBody").innerHTML = sortedProds.map((p) => {
-          const rev = (p.soldQty || 0) * p.price;
-          const pct = (rev / sumRev) * 100;
-          accPct += pct;
-          const curve = accPct <= 70 ? "A" : accPct <= 90 ? "B" : "C";
-          return `<tr><td>${p.name}</td><td>${brl(rev)}</td><td>${pct.toFixed(1)}%</td><td><span class="badge">Curva ${curve}</span></td></tr>`;
-        }).join("");
-
-        // Config e Auditoria
-        document.getElementById("cfgStoreName").value = state.config.storeName;
-        document.getElementById("cfgGoal").value = state.config.monthlyGoal;
-        document.getElementById("auditList").innerHTML = state.audit.map((a) => `<li>${a}</li>`).join("");
+        requestAnimationFrame(draw);
       }
 
-      // Eventos
-      document.getElementById("toggleSmokeBtn").addEventListener("click", () => {
-        state.config.smokeOn = !state.config.smokeOn;
-        saveState(`Neblina ${state.config.smokeOn ? "ativada" : "pausada"}`);
-      });
-
-      document.getElementById("openCashBtn").addEventListener("click", () => {
-        state.cashOpen = true;
-        state.cashHistory.unshift({ time: new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }), type: "Abertura", note: "Caixa aberto", amount: 0 });
-        saveState("Caixa aberto");
-      });
-
-      document.getElementById("closeCashBtn").addEventListener("click", () => {
-        state.cashOpen = false;
-        state.cashHistory.unshift({ time: new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }), type: "Fechamento", note: "Caixa fechado", amount: 0 });
-        saveState("Caixa fechado");
-      });
-
-      document.getElementById("cashMoveForm").addEventListener("submit", (e) => {
-        e.preventDefault();
-        const type = document.getElementById("cashMoveType").value;
-        const amount = Number(document.getElementById("cashMoveAmount").value);
-        const note = document.getElementById("cashMoveNote").value.trim();
-        state.cashHistory.unshift({ time: new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }), type, note, amount });
-        e.target.reset();
-        saveState(`Caixa: ${type} de ${brl(amount)}`);
-      });
-
-      document.getElementById("pdvSaleForm").addEventListener("submit", (e) => {
-        e.preventDefault();
-        const prod = state.products.find((p) => p.id === document.getElementById("pdvProductSelect").value);
-        const qty = Math.max(1, Number(document.getElementById("pdvQty").value));
-        const payment = document.getElementById("pdvPayment").value;
-        const customer = document.getElementById("pdvCustomer").value.trim() || "Balcão";
-        if (!prod) return;
-        prod.stock = Math.max(0, prod.stock - qty);
-        prod.soldQty = (prod.soldQty || 0) + qty;
-        const total = prod.price * qty;
-        state.sales.unshift({ id: `PDV-${Math.floor(100 + Math.random() * 899)}`, origin: "Presencial", customer, payment, total, status: "Concluído" });
-        state.cashHistory.unshift({ time: new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }), type: `Venda (${payment})`, note: `${qty}x ${prod.name}`, amount: total });
-        e.target.reset();
-        saveState(`Venda PDV: ${qty}x ${prod.name} (${brl(total)})`);
-      });
-
-      document.getElementById("finForm").addEventListener("submit", (e) => {
-        e.preventDefault();
-        state.finance.unshift({
-          kind: document.getElementById("finKind").value,
-          desc: document.getElementById("finDesc").value.trim(),
-          val: Number(document.getElementById("finVal").value)
-        });
-        e.target.reset();
-        saveState("Lançamento financeiro adicionado");
-      });
-
-      document.getElementById("stockAdjustForm").addEventListener("submit", (e) => {
-        e.preventDefault();
-        const prod = state.products.find((p) => p.id === document.getElementById("stockProductSelect").value);
-        const delta = Number(document.getElementById("stockDelta").value);
-        const reason = document.getElementById("stockReason").value.trim();
-        if (!prod) return;
-        prod.stock = Math.max(0, prod.stock + delta);
-        e.target.reset();
-        saveState(`Estoque ${prod.name}: ${delta >= 0 ? "+" : ""}${delta} (${reason})`);
-      });
-
-      document.getElementById("productForm").addEventListener("submit", (e) => {
-        e.preventDefault();
-        state.products.push({
-          id: `p_${Date.now()}`,
-          name: document.getElementById("prodName").value.trim(),
-          sku: document.getElementById("prodSku").value.trim(),
-          category: document.getElementById("prodCat").value.trim(),
-          cost: Number(document.getElementById("prodCost").value),
-          price: Number(document.getElementById("prodPrice").value),
-          stock: Number(document.getElementById("prodStock").value),
-          minStock: 5,
-          soldQty: 0
-        });
-        e.target.reset();
-        saveState("Novo produto cadastrado");
-      });
-
-      document.getElementById("salesBody").addEventListener("click", (e) => {
-        const btn = e.target.closest("[data-toggle-sale]");
-        if (!btn) return;
-        const sale = state.sales[Number(btn.dataset.toggleSale)];
-        const flow = ["Pendente", "Preparando", "Entregue", "Cancelado"];
-        sale.status = flow[(flow.indexOf(sale.status) + 1) % flow.length];
-        saveState(`Pedido ${sale.id} -> ${sale.status}`);
-      });
-
-      document.getElementById("crmForm").addEventListener("submit", (e) => {
-        e.preventDefault();
-        state.customers.unshift({
-          name: document.getElementById("crmName").value.trim(),
-          phone: document.getElementById("crmPhone").value.trim(),
-          orders: 0,
-          spent: 0,
-          note: document.getElementById("crmNote").value.trim()
-        });
-        e.target.reset();
-        saveState("Cliente salvo no CRM");
-      });
-
-      document.getElementById("supForm").addEventListener("submit", (e) => {
-        e.preventDefault();
-        const total = Number(document.getElementById("supTotal").value);
-        const name = document.getElementById("supName").value.trim();
-        const item = document.getElementById("supItem").value.trim();
-        state.suppliers.unshift({ name, item, total });
-        state.finance.unshift({ kind: "despesa_variavel", desc: `Compra ${name} — ${item}`, val: total });
-        e.target.reset();
-        saveState(`Compra registrada: ${name} (${brl(total)})`);
-      });
-
-      document.getElementById("importWaBtn").addEventListener("click", () => {
-        const raw = document.getElementById("waOrderInput").value.trim();
-        if (!raw) return;
-        const nameMatch = raw.match(/Nome:\s*(.+)/i);
-        const phoneMatch = raw.match(/WhatsApp:\s*(.+)/i);
-        const totalMatch = raw.match(/Total estimado:\s*R\$\s*([\d.,]+)/i);
-        const total = totalMatch ? Number(totalMatch[1].replace(/\./g, "").replace(",", ".")) : 29.90;
-        const customer = nameMatch ? nameMatch[1].trim() : "Cliente Site";
-        const phone = phoneMatch ? phoneMatch[1].trim() : "";
-
-        state.sales.unshift({
-          id: `SITE-${Math.floor(100 + Math.random() * 899)}`,
-          origin: "Site",
-          customer,
-          payment: "A combinar",
-          total,
-          status: "Pendente"
-        });
-        if (phone) {
-          state.customers.unshift({ name: customer, phone, orders: 1, spent: total, note: "Pedido via site" });
-        }
-        document.getElementById("waOrderInput").value = "";
-        document.getElementById("syncLog").textContent = `Pedido importado para ${customer} (${brl(total)}).`;
-        saveState(`Pedido do site importado: ${customer}`);
-      });
-
-      document.getElementById("syncCatalogBtn").addEventListener("click", () => {
-        document.getElementById("syncLog").textContent = `Catálogo local verificado (${state.products.length} itens ativos).`;
-        saveState("Sincronização de catálogo executada");
-      });
-
-      document.getElementById("exportCsvBtn").addEventListener("click", () => {
-        const rows = ["ID,Origem,Cliente,Pagamento,Total,Status", ...state.sales.map((s) => `${s.id},"${s.origin}","${s.customer}","${s.payment}",${s.total},"${s.status}"`)];
-        const blob = new Blob([rows.join("\n")], { type: "text/csv;charset=utf-8;" });
-        const a = document.createElement("a");
-        a.href = URL.createObjectURL(blob);
-        a.download = "papato-vendas.csv";
-        a.click();
-      });
-
-      document.getElementById("printReportBtn").addEventListener("click", () => window.print());
-
-      document.getElementById("exportJsonBtn").addEventListener("click", () => {
-        const blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json" });
-        const a = document.createElement("a");
-        a.href = URL.createObjectURL(blob);
-        a.download = "papato-backup.json";
-        a.click();
-      });
-
-      document.getElementById("saveCfgBtn").addEventListener("click", () => {
-        state.config.storeName = document.getElementById("cfgStoreName").value.trim() || "Papato Tabacaria";
-        state.config.monthlyGoal = Number(document.getElementById("cfgGoal").value) || 6000;
-        saveState("Configurações atualizadas");
-      });
-
-
-      async function checkServerSession() {
-        try {
-          const response = await fetch("/api/auth/me", { credentials: "same-origin", cache: "no-store" });
-          if (!response.ok) {
-            window.location.replace("/admin-login.html?next=%2Fpainel%2F");
-            return false;
-          }
-          return true;
-        } catch {
-          window.location.replace("/admin-login.html?next=%2Fpainel%2F");
-          return false;
-        }
-      }
-
-      document.getElementById("logoutBtn").addEventListener("click", async () => {
-        const button = document.getElementById("logoutBtn");
-        button.disabled = true;
-        button.textContent = "Saindo...";
-        try {
-          await fetch("/api/auth/logout", { method: "POST", credentials: "same-origin" });
-        } finally {
-          window.location.replace("/admin-login.html");
-        }
-      });
-
-      let sessionCheckAt = 0;
-      async function refreshSessionIfNeeded() {
-        const now = Date.now();
-        if (now - sessionCheckAt < 45000) return;
-        sessionCheckAt = now;
-        await checkServerSession();
-      }
-      document.addEventListener("visibilitychange", () => {
-        if (!document.hidden) refreshSessionIfNeeded();
-      });
-      window.setInterval(refreshSessionIfNeeded, 60000);
-
-      initLogo();
-      checkServerSession().then((ok) => { if (ok) renderAll(); });
+      window.addEventListener('resize', () => { resize(); createPuffs(); });
+      resize();
+      createPuffs();
+      draw();
     })();
+
+    if (state.locked) {
+      document.getElementById('lockScreen').classList.add('active');
+    }
+    renderAll();
   </script>
 </body>
 </html>

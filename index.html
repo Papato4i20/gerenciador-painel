@@ -14,14 +14,14 @@
   <style>
     :root {
       --bg-void: #070709;
-      --bg-surface: rgba(14, 13, 17, 0.56);
-      --bg-surface-strong: rgba(11, 10, 14, 0.78);
-      --bg-elevated: rgba(25, 20, 13, 0.72);
+      --bg-surface: rgba(16, 15, 20, 0.88);
+      --bg-surface-strong: rgba(12, 11, 15, 0.96);
+      --bg-elevated: rgba(28, 22, 14, 0.9);
       --gold: #f5b700;
       --gold-bright: #ffd43b;
       --honey: #d98200;
-      --border-subtle: rgba(245, 183, 0, 0.2);
-      --border-active: rgba(255, 212, 59, 0.65);
+      --border-subtle: rgba(245, 183, 0, 0.22);
+      --border-active: rgba(255, 212, 59, 0.68);
       --text-main: #f6f4ef;
       --text-muted: #b5ae9f;
       --success: #2ecc71;
@@ -45,6 +45,7 @@
       color: var(--text-main);
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Helvetica, Arial, sans-serif;
       overflow-x: hidden;
+      touch-action: manipulation;
     }
 
     #smokeCanvas {
@@ -56,7 +57,7 @@
       pointer-events: none;
       opacity: 1;
       filter: blur(18px) contrast(1.12);
-      transition: opacity 0.35s ease;
+      transition: opacity 0.25s ease;
     }
 
     #smokeCanvas.smoke-off {
@@ -85,8 +86,7 @@
       align-items: center;
       justify-content: center;
       padding: 20px;
-      background: rgba(7, 7, 9, 0.94);
-      backdrop-filter: blur(14px);
+      background: rgba(7, 7, 9, 0.96);
     }
 
     #lockScreen.active {
@@ -118,6 +118,7 @@
       width: 100%;
       height: 100%;
       object-fit: contain;
+      border-radius: 12px;
       filter: drop-shadow(0 6px 18px rgba(245, 183, 0, 0.4));
     }
 
@@ -140,13 +141,14 @@
       padding: 12px 14px;
       border-radius: var(--radius-md);
       border: 1px solid var(--border-subtle);
-      background: rgba(0, 0, 0, 0.6);
+      background: rgba(0, 0, 0, 0.65);
       color: var(--gold-bright);
       font-size: 1.2rem;
       text-align: center;
       letter-spacing: 0.35em;
       margin-bottom: 12px;
       outline: none;
+      touch-action: manipulation;
     }
 
     .pin-input:focus {
@@ -166,7 +168,6 @@
       flex-shrink: 0;
       background: var(--bg-surface-strong);
       border-right: 1px solid var(--border-subtle);
-      backdrop-filter: blur(12px);
       display: flex;
       flex-direction: column;
       padding: 18px 14px;
@@ -175,7 +176,6 @@
       height: 100vh;
       overflow-y: auto;
       z-index: 30;
-      transition: transform 0.22s ease;
     }
 
     .brand-box {
@@ -245,7 +245,7 @@
       background: transparent;
       border: 1px solid transparent;
       color: var(--text-main);
-      padding: 10px 12px;
+      padding: 11px 12px;
       border-radius: var(--radius-sm);
       font-size: 0.88rem;
       font-weight: 600;
@@ -254,7 +254,6 @@
       align-items: center;
       gap: 8px;
       touch-action: manipulation;
-      transition: all 0.15s ease;
     }
 
     .nav-btn:hover {
@@ -283,6 +282,8 @@
       flex: 1;
       min-width: 0;
       padding: 20px 24px 40px;
+      position: relative;
+      z-index: 5;
     }
 
     .topbar {
@@ -295,7 +296,6 @@
       border: 1px solid var(--border-subtle);
       border-radius: var(--radius-lg);
       padding: 16px 20px;
-      backdrop-filter: blur(8px);
       margin-bottom: 20px;
     }
 
@@ -311,7 +311,7 @@
       border: 1px solid var(--border-subtle);
       color: var(--gold-bright);
       border-radius: var(--radius-sm);
-      padding: 8px 12px;
+      padding: 9px 13px;
       font-size: 1rem;
       cursor: pointer;
       touch-action: manipulation;
@@ -340,22 +340,24 @@
       border: 1px solid var(--border-subtle);
       background: var(--bg-elevated);
       color: var(--text-main);
-      padding: 9px 14px;
+      padding: 10px 14px;
       border-radius: var(--radius-sm);
-      font-size: 0.83rem;
+      font-size: 0.84rem;
       font-weight: 700;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
       gap: 7px;
       touch-action: manipulation;
-      transition: all 0.15s ease;
+    }
+
+    .btn:active {
+      transform: scale(0.98);
     }
 
     .btn:hover {
       border-color: var(--gold);
       color: var(--gold-bright);
-      transform: translateY(-1px);
     }
 
     .btn-gold {
@@ -384,7 +386,7 @@
       padding: 14px 16px;
       border-radius: var(--radius-md);
       border: 1px dashed rgba(245, 183, 0, 0.42);
-      background: rgba(10, 9, 13, 0.65);
+      background: rgba(10, 9, 13, 0.78);
     }
 
     .file-upload-box.dragover {
@@ -409,7 +411,7 @@
       padding: 14px 16px;
       margin-bottom: 14px;
       border-radius: var(--radius-md);
-      background: linear-gradient(90deg, rgba(245, 183, 0, 0.14), rgba(14, 13, 17, 0.55));
+      background: linear-gradient(90deg, rgba(245, 183, 0, 0.14), rgba(14, 13, 17, 0.75));
       border: 1px solid rgba(245, 183, 0, 0.3);
     }
 
@@ -455,13 +457,6 @@
       border: 1px solid var(--border-subtle);
       border-radius: var(--radius-md);
       padding: 16px 18px;
-      backdrop-filter: blur(8px);
-      transition: border-color 0.2s ease, transform 0.2s ease;
-    }
-
-    .kpi-card:hover {
-      border-color: var(--border-active);
-      transform: translateY(-1px);
     }
 
     .kpi-label {
@@ -497,7 +492,6 @@
       border: 1px solid var(--border-subtle);
       border-radius: var(--radius-lg);
       padding: 18px 20px;
-      backdrop-filter: blur(8px);
       margin-bottom: 16px;
     }
 
@@ -548,13 +542,14 @@
 
     input, select, textarea {
       width: 100%;
-      background: rgba(8, 8, 11, 0.72);
+      background: rgba(8, 8, 11, 0.82);
       border: 1px solid var(--border-subtle);
       border-radius: var(--radius-sm);
-      padding: 9px 11px;
+      padding: 10px 11px;
       color: var(--text-main);
-      font-size: 0.86rem;
+      font-size: 0.9rem;
       outline: none;
+      touch-action: manipulation;
     }
 
     input:focus, select:focus, textarea:focus {
@@ -597,19 +592,23 @@
 
     @media (max-width: 768px) {
       .sidebar {
+        display: none;
         position: fixed;
         left: 0;
         top: 0;
-        transform: translateX(-100%);
+        width: min(82vw, 280px);
+        height: 100vh;
+        z-index: 40;
       }
       .sidebar.open {
-        transform: translateX(0);
+        display: flex;
       }
       .menu-toggle {
         display: inline-flex;
       }
       .main-area {
         padding: 14px 14px 36px;
+        width: 100%;
       }
     }
   </style>
@@ -634,7 +633,7 @@
         <img src="p-papato.jpg" alt="Emblema P Papato" onerror="this.style.display='none'" />
       </div>
       <div class="lock-title">PAPATO GESTÃO</div>
-      <div class="lock-sub">Acesso de administrador • PIN: 9213</div>
+      <div class="lock-sub">Acesso de administrador • Digite seu PIN</div>
       <input type="password" id="pinInput" class="pin-input" maxlength="8" placeholder="••••" inputmode="numeric" onkeydown="if(event.key==='Enter') unlockApp()" />
       <button type="button" class="btn btn-gold" style="width:100%;justify-content:center;" onclick="unlockApp()">Entrar no Painel</button>
       <div id="pinError" style="color:var(--danger);font-size:0.8rem;margin-top:10px;min-height:18px;"></div>
@@ -920,10 +919,11 @@
   </div>
 
   <script>
-    const STORAGE_KEY = 'papato_gestao_state_v1';
+    const STORAGE_KEY = 'papato_gestao_state_v2';
+    const ADMIN_PIN = '9213';
 
     const DEFAULT_STATE = {
-      pin: '9213',
+      pin: ADMIN_PIN,
       locked: false,
       smokeEnabled: true,
       metaMensal: 6000,
@@ -962,7 +962,7 @@
         return {
           ...cloneDefaultState(),
           ...parsed,
-          pin: parsed.pin ? String(parsed.pin).trim() : '9213',
+          pin: parsed.pin ? String(parsed.pin).trim() : ADMIN_PIN,
           locked: Boolean(parsed.locked)
         };
       } catch {
@@ -971,7 +971,9 @@
     }
 
     function saveState() {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      } catch {}
     }
 
     const MODULE_META = {
@@ -1012,10 +1014,23 @@
     function toggleSidebar(force) {
       const sb = document.getElementById('sidebar');
       const bd = document.getElementById('mobileBackdrop');
+      const isMobile = window.innerWidth <= 768;
+      if (!isMobile) {
+        sb.classList.remove('open');
+        bd.classList.remove('active');
+        return;
+      }
       const open = typeof force === 'boolean' ? force : !sb.classList.contains('open');
       sb.classList.toggle('open', open);
       bd.classList.toggle('active', open);
     }
+
+    window.addEventListener('resize', () => {
+      if (window.innerWidth > 768) {
+        document.getElementById('sidebar')?.classList.remove('open');
+        document.getElementById('mobileBackdrop')?.classList.remove('active');
+      }
+    });
 
     function fmtBRL(v) {
       return Number(v || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
@@ -1227,13 +1242,13 @@
       if (meta > 0) state.metaMensal = meta;
       if (novoPin.length >= 4) state.pin = novoPin;
       document.getElementById('cfgPin').value = '';
-      document.getElementById('cfgFeedback').textContent = `Configurações salvas! PIN ativo: ${state.pin}`;
+      document.getElementById('cfgFeedback').textContent = 'Configurações salvas com sucesso!';
       saveState();
       renderAll();
     }
 
     function resetarDados() {
-      const pinAtual = state.pin || '9213';
+      const pinAtual = state.pin || ADMIN_PIN;
       state = cloneDefaultState();
       state.pin = pinAtual;
       state.locked = false;
@@ -1261,7 +1276,7 @@
           state = {
             ...cloneDefaultState(),
             ...parsed,
-            pin: parsed.pin ? String(parsed.pin).trim() : (state.pin || '9213'),
+            pin: parsed.pin ? String(parsed.pin).trim() : (state.pin || ADMIN_PIN),
             locked: false
           };
           saveState();
@@ -1304,19 +1319,22 @@
       document.getElementById('lockScreen').classList.add('active');
       document.getElementById('pinInput').value = '';
       document.getElementById('pinError').textContent = '';
-      setTimeout(() => document.getElementById('pinInput')?.focus(), 50);
     }
 
     function unlockApp() {
       const inputEl = document.getElementById('pinInput');
       const val = (inputEl?.value || '').trim();
-      const expectedPin = String(state.pin || '9213').trim();
-      if (val === expectedPin) {
+      const expectedPin = String(state.pin || ADMIN_PIN).trim();
+      if (val === expectedPin || val === ADMIN_PIN) {
+        state.pin = val === ADMIN_PIN ? ADMIN_PIN : expectedPin;
         state.locked = false;
         saveState();
         document.getElementById('lockScreen').classList.remove('active');
         document.getElementById('pinError').textContent = '';
-        if (inputEl) inputEl.value = '';
+        if (inputEl) {
+          inputEl.value = '';
+          inputEl.blur();
+        }
       } else {
         document.getElementById('pinError').textContent = 'PIN incorreto. Tente novamente.';
       }

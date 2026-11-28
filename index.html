@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="google" content="notranslate" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>PAPATO GESTÃO • Tabacaria &amp; Headshop</title>
   <meta name="theme-color" content="#070709" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -15,14 +15,14 @@
   <style>
     :root {
       --bg-void: #070709;
-      --bg-surface: rgba(16, 15, 20, 0.92);
-      --bg-surface-strong: rgba(12, 11, 15, 0.98);
-      --bg-elevated: rgba(28, 22, 14, 0.94);
+      --bg-surface: #121116;
+      --bg-surface-strong: #0c0b0f;
+      --bg-elevated: #1c160e;
       --gold: #f5b700;
       --gold-bright: #ffd43b;
       --honey: #d98200;
-      --border-subtle: rgba(245, 183, 0, 0.22);
-      --border-active: rgba(255, 212, 59, 0.68);
+      --border-subtle: rgba(245, 183, 0, 0.24);
+      --border-active: rgba(255, 212, 59, 0.7);
       --text-main: #f6f4ef;
       --text-muted: #b5ae9f;
       --success: #2ecc71;
@@ -48,47 +48,25 @@
       color: var(--text-main);
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Helvetica, Arial, sans-serif;
       overflow-x: hidden;
-      touch-action: manipulation;
     }
 
-    #smokeCanvas {
-      position: fixed;
-      inset: 0;
-      width: 100vw;
-      height: 100vh;
-      z-index: 0;
-      pointer-events: none;
-      display: none;
-    }
-
-    #smokeCanvas.smoke-on {
-      display: block;
-      opacity: 0.7;
-    }
-
+    #smokeCanvas,
     .ambient-overlay {
-      position: fixed;
-      inset: 0;
-      z-index: 1;
-      pointer-events: none;
-      background:
-        radial-gradient(circle at 78% 22%, rgba(245, 183, 0, 0.1), transparent 46%),
-        radial-gradient(circle at 22% 78%, rgba(217, 130, 0, 0.07), transparent 52%),
-        linear-gradient(180deg, rgba(7, 7, 9, 0.25) 0%, rgba(7, 7, 9, 0.55) 100%);
+      display: none !important;
+      pointer-events: none !important;
     }
 
-    /* Tela de bloqueio por PIN centralizada */
     #lockScreen {
       position: fixed;
       inset: 0;
-      width: 100vw;
-      height: 100vh;
+      width: 100%;
+      height: 100%;
       z-index: 9999;
       display: none;
       align-items: center;
       justify-content: center;
       padding: 20px;
-      background: rgba(7, 7, 9, 0.97);
+      background: rgba(7, 7, 9, 0.96);
     }
 
     #lockScreen.active {
@@ -103,7 +81,6 @@
       border-radius: var(--radius-lg);
       padding: 28px 24px;
       text-align: center;
-      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.85);
     }
 
     .lock-emblem {
@@ -115,8 +92,7 @@
       justify-content: center;
     }
 
-    .lock-emblem img,
-    .lock-emblem svg {
+    .lock-emblem img {
       width: 100%;
       height: 100%;
       object-fit: contain;
@@ -142,18 +118,13 @@
       padding: 12px 14px;
       border-radius: var(--radius-md);
       border: 1px solid var(--border-subtle);
-      background: rgba(0, 0, 0, 0.7);
+      background: #050507;
       color: var(--gold-bright);
       font-size: 1.2rem;
       text-align: center;
       letter-spacing: 0.35em;
       margin-bottom: 12px;
       outline: none;
-      touch-action: manipulation;
-    }
-
-    .pin-input:focus {
-      border-color: var(--gold);
     }
 
     .app-shell {
@@ -161,6 +132,7 @@
       z-index: 2;
       display: flex;
       min-height: 100vh;
+      width: 100%;
     }
 
     .sidebar {
@@ -175,7 +147,7 @@
       top: 0;
       height: 100vh;
       overflow-y: auto;
-      z-index: 30;
+      z-index: 50;
     }
 
     .brand-box {
@@ -194,27 +166,13 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      position: relative;
     }
 
-    .brand-logo-wrap img,
-    .brand-logo-wrap svg {
+    .brand-logo-wrap img {
       width: 100%;
       height: 100%;
       object-fit: contain;
       border-radius: 10px;
-    }
-
-    .brand-logo-wrap svg {
-      display: none;
-    }
-
-    .brand-logo-wrap.missing img {
-      display: none;
-    }
-
-    .brand-logo-wrap.missing svg {
-      display: block;
     }
 
     .brand-name {
@@ -234,7 +192,7 @@
     .nav-list {
       display: flex;
       flex-direction: column;
-      gap: 4px;
+      gap: 6px;
       flex: 1;
     }
 
@@ -244,15 +202,12 @@
       background: transparent;
       border: 1px solid transparent;
       color: var(--text-main);
-      padding: 12px;
+      padding: 13px 14px;
       border-radius: var(--radius-sm);
-      font-size: 0.9rem;
+      font-size: 0.92rem;
       font-weight: 600;
       cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      touch-action: manipulation;
+      display: block;
     }
 
     .nav-btn.active {
@@ -304,9 +259,8 @@
       color: var(--gold-bright);
       border-radius: var(--radius-sm);
       padding: 10px 14px;
-      font-size: 1.05rem;
+      font-size: 1.1rem;
       cursor: pointer;
-      touch-action: manipulation;
     }
 
     .page-title {
@@ -340,7 +294,6 @@
       display: inline-flex;
       align-items: center;
       gap: 7px;
-      touch-action: manipulation;
     }
 
     .btn-gold {
@@ -364,7 +317,7 @@
       padding: 14px 16px;
       border-radius: var(--radius-md);
       border: 1px dashed rgba(245, 183, 0, 0.42);
-      background: rgba(10, 9, 13, 0.82);
+      background: #0b0a0e;
     }
 
     .file-upload-meta {
@@ -397,24 +350,11 @@
       justify-content: center;
     }
 
-    .site-emblem-p img,
-    .site-emblem-p svg {
+    .site-emblem-p img {
       width: 100%;
       height: 100%;
       object-fit: contain;
       border-radius: 10px;
-    }
-
-    .site-emblem-p svg {
-      display: none;
-    }
-
-    .site-emblem-p.missing img {
-      display: none;
-    }
-
-    .site-emblem-p.missing svg {
-      display: block;
     }
 
     .kpi-grid {
@@ -514,18 +454,13 @@
 
     input, select, textarea {
       width: 100%;
-      background: rgba(8, 8, 11, 0.86);
+      background: #08080b;
       border: 1px solid var(--border-subtle);
       border-radius: var(--radius-sm);
       padding: 10px 11px;
       color: var(--text-main);
       font-size: 0.9rem;
       outline: none;
-      touch-action: manipulation;
-    }
-
-    input:focus, select:focus, textarea:focus {
-      border-color: var(--gold);
     }
 
     .pill {
@@ -539,16 +474,16 @@
       border: 1px solid rgba(245, 183, 0, 0.32);
     }
 
-    .backdrop-mobile {
+    #mobileBackdrop {
       display: none;
       position: fixed;
       inset: 0;
       background: rgba(0, 0, 0, 0.72);
-      z-index: 25;
+      z-index: 40;
       pointer-events: none;
     }
 
-    .backdrop-mobile.active {
+    #mobileBackdrop.active {
       display: block;
       pointer-events: auto;
     }
@@ -568,9 +503,10 @@
         position: fixed;
         left: 0;
         top: 0;
-        width: min(84vw, 290px);
-        height: 100vh;
-        z-index: 40;
+        width: 82%;
+        max-width: 290px;
+        height: 100%;
+        z-index: 60;
       }
       .sidebar.open {
         display: flex;
@@ -586,19 +522,6 @@
   </style>
 </head>
 <body>
-  <svg style="display:none" aria-hidden="true">
-    <defs>
-      <linearGradient id="papatoHoneyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" stop-color="#ffe066" />
-        <stop offset="50%" stop-color="#f5b700" />
-        <stop offset="100%" stop-color="#c97200" />
-      </linearGradient>
-    </defs>
-  </svg>
-
-  <canvas id="smokeCanvas"></canvas>
-  <div class="ambient-overlay"></div>
-
   <div id="lockScreen">
     <div class="lock-card">
       <div class="lock-emblem">
@@ -612,17 +535,13 @@
     </div>
   </div>
 
-  <div id="mobileBackdrop" class="backdrop-mobile" onclick="toggleSidebar(false)"></div>
+  <div id="mobileBackdrop" onclick="closeSidebarNow()"></div>
 
   <div class="app-shell">
     <aside id="sidebar" class="sidebar">
       <div class="brand-box">
-        <div id="brandLogoWrap" class="brand-logo-wrap missing">
-          <img id="brandLogoImg" src="p-papato.jpg" alt="Emblema P Papato Tabacaria" onload="this.parentElement.classList.remove('missing')" onerror="this.parentElement.classList.add('missing')" />
-          <svg viewBox="0 0 80 80" fill="none">
-            <path d="M18 12H48C61 12 68 19 68 30C68 41 61 48 48 48H33V68H18V12ZM33 23V37H46C51.5 37 54.5 34.2 54.5 30C54.5 25.8 51.5 23 46 23H33Z" fill="url(#papatoHoneyGrad)" stroke="#120d05" stroke-width="3" stroke-linejoin="round" />
-            <circle cx="62" cy="56" r="6" fill="#ffd43b" />
-          </svg>
+        <div class="brand-logo-wrap">
+          <img src="p-papato.jpg" alt="Emblema P Papato Tabacaria" onerror="this.style.display='none'" />
         </div>
         <div>
           <div class="brand-name">PAPATO GESTÃO</div>
@@ -631,17 +550,17 @@
       </div>
 
       <nav class="nav-list" id="navList">
-        <button type="button" class="nav-btn active" data-mod="dashboard" onclick="switchModule('dashboard', this)">1. Dashboard</button>
-        <button type="button" class="nav-btn" data-mod="pdv" onclick="switchModule('pdv', this)">2. Caixa e PDV</button>
-        <button type="button" class="nav-btn" data-mod="financeiro" onclick="switchModule('financeiro', this)">3. Financeiro</button>
-        <button type="button" class="nav-btn" data-mod="estoque" onclick="switchModule('estoque', this)">4. Estoque</button>
-        <button type="button" class="nav-btn" data-mod="produtos" onclick="switchModule('produtos', this)">5. Produtos e Preços</button>
-        <button type="button" class="nav-btn" data-mod="vendas" onclick="switchModule('vendas', this)">6. Vendas e Pedidos</button>
-        <button type="button" class="nav-btn" data-mod="clientes" onclick="switchModule('clientes', this)">7. Clientes — CRM</button>
-        <button type="button" class="nav-btn" data-mod="fornecedores" onclick="switchModule('fornecedores', this)">8. Fornecedores</button>
-        <button type="button" class="nav-btn" data-mod="integracao" onclick="switchModule('integracao', this)">9. Integração Site</button>
-        <button type="button" class="nav-btn" data-mod="relatorios" onclick="switchModule('relatorios', this)">10. Relatórios</button>
-        <button type="button" class="nav-btn" data-mod="configuracoes" onclick="switchModule('configuracoes', this)">11. Configurações</button>
+        <button type="button" class="nav-btn active" data-mod="dashboard" onclick="selectMod('dashboard')">1. Dashboard</button>
+        <button type="button" class="nav-btn" data-mod="pdv" onclick="selectMod('pdv')">2. Caixa e PDV</button>
+        <button type="button" class="nav-btn" data-mod="financeiro" onclick="selectMod('financeiro')">3. Financeiro</button>
+        <button type="button" class="nav-btn" data-mod="estoque" onclick="selectMod('estoque')">4. Estoque</button>
+        <button type="button" class="nav-btn" data-mod="produtos" onclick="selectMod('produtos')">5. Produtos e Preços</button>
+        <button type="button" class="nav-btn" data-mod="vendas" onclick="selectMod('vendas')">6. Vendas e Pedidos</button>
+        <button type="button" class="nav-btn" data-mod="clientes" onclick="selectMod('clientes')">7. Clientes — CRM</button>
+        <button type="button" class="nav-btn" data-mod="fornecedores" onclick="selectMod('fornecedores')">8. Fornecedores</button>
+        <button type="button" class="nav-btn" data-mod="integracao" onclick="selectMod('integracao')">9. Integração Site</button>
+        <button type="button" class="nav-btn" data-mod="relatorios" onclick="selectMod('relatorios')">10. Relatórios</button>
+        <button type="button" class="nav-btn" data-mod="configuracoes" onclick="selectMod('configuracoes')">11. Configurações</button>
       </nav>
 
       <div class="sidebar-footer">
@@ -653,7 +572,7 @@
     <main class="main-area">
       <header class="topbar">
         <div class="topbar-left">
-          <button type="button" class="menu-toggle" onclick="toggleSidebar()" aria-label="Menu">☰</button>
+          <button type="button" class="menu-toggle" onclick="openSidebarNow()" aria-label="Menu">☰</button>
           <div>
             <div id="moduleTitle" class="page-title">1. Dashboard — Visão geral</div>
             <div id="moduleSubtitle" class="page-subtitle">Papato Tabacaria • Atualizado agora</div>
@@ -661,7 +580,6 @@
         </div>
 
         <div class="topbar-actions">
-          <button type="button" id="smokeBtn" class="btn" onclick="toggleSmoke()">Neblina: OFF</button>
           <button type="button" class="btn" onclick="exportBackup()">Backup JSON</button>
           <button type="button" class="btn btn-gold" onclick="lockApp()">Sair com segurança</button>
         </div>
@@ -835,12 +753,8 @@
           <div class="panel-title">9. Integração com Site &amp; Canais</div>
 
           <div class="site-emblem-banner">
-            <div id="siteEmblemP" class="site-emblem-p missing">
-              <img src="p-papato.jpg" alt="Emblema P Papato" onload="this.parentElement.classList.remove('missing')" onerror="this.parentElement.classList.add('missing')" />
-              <svg viewBox="0 0 80 80" fill="none">
-                <path d="M18 12H48C61 12 68 19 68 30C68 41 61 48 48 48H33V68H18V12ZM33 23V37H46C51.5 37 54.5 34.2 54.5 30C54.5 25.8 51.5 23 46 23H33Z" fill="url(#papatoHoneyGrad)" stroke="#120d05" stroke-width="3" stroke-linejoin="round" />
-                <circle cx="62" cy="56" r="6" fill="#ffd43b" />
-              </svg>
+            <div class="site-emblem-p">
+              <img src="p-papato.jpg" alt="Emblema P Papato" onerror="this.style.display='none'" />
             </div>
             <div>
               <div style="font-weight:800;color:var(--gold-bright);font-size:0.95rem;">PAPATO • CONEXÃO OFICIAL</div>
@@ -891,13 +805,12 @@
   </div>
 
   <script>
-    const STORAGE_KEY = 'papato_gestao_state_v3';
+    const STORAGE_KEY = 'papato_gestao_state_v4';
     const ADMIN_PIN = '9213';
 
     const DEFAULT_STATE = {
       pin: ADMIN_PIN,
       locked: false,
-      smokeEnabled: false,
       metaMensal: 6000,
       produtos: [
         { id: 1, nome: 'Seda Sadhu King Size', categoria: 'Sedas', custo: 1.1, preco: 3.5, estoque: 45, minimo: 10 },
@@ -935,8 +848,7 @@
           ...cloneDefaultState(),
           ...parsed,
           pin: parsed.pin ? String(parsed.pin).trim() : ADMIN_PIN,
-          locked: Boolean(parsed.locked),
-          smokeEnabled: Boolean(parsed.smokeEnabled)
+          locked: Boolean(parsed.locked)
         };
       } catch {
         return cloneDefaultState();
@@ -963,41 +875,42 @@
       configuracoes: ['11. Configurações', 'Metas mensais, PIN de segurança e dados']
     };
 
-    function toggleSidebar(force) {
+    function openSidebarNow() {
+      if (window.innerWidth > 768) return;
       const sb = document.getElementById('sidebar');
       const bd = document.getElementById('mobileBackdrop');
-      const isMobile = window.innerWidth <= 768;
-      if (!isMobile) {
-        sb.classList.remove('open');
-        sb.style.display = '';
-        bd.classList.remove('active');
-        return;
-      }
-      const open = typeof force === 'boolean' ? force : !sb.classList.contains('open');
-      sb.classList.toggle('open', open);
-      sb.style.display = open ? 'flex' : 'none';
-      bd.classList.toggle('active', open);
+      sb.style.display = 'flex';
+      sb.classList.add('open');
+      bd.classList.add('active');
     }
 
-    function switchModule(mod, btnEl) {
-      toggleSidebar(false);
+    function closeSidebarNow() {
+      const sb = document.getElementById('sidebar');
+      const bd = document.getElementById('mobileBackdrop');
+      bd.classList.remove('active');
+      sb.classList.remove('open');
+      if (window.innerWidth <= 768) {
+        sb.style.display = 'none';
+      } else {
+        sb.style.display = '';
+      }
+    }
 
+    function selectMod(mod) {
       document.querySelectorAll('.module-section').forEach(s => s.classList.remove('active'));
       document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
 
       const target = document.getElementById('mod-' + mod);
       if (target) target.classList.add('active');
-      if (btnEl) {
-        btnEl.classList.add('active');
-      } else {
-        const fallbackBtn = document.querySelector(`.nav-btn[data-mod="${mod}"]`);
-        if (fallbackBtn) fallbackBtn.classList.add('active');
-      }
+
+      const activeBtn = document.querySelector(`.nav-btn[data-mod="${mod}"]`);
+      if (activeBtn) activeBtn.classList.add('active');
 
       const [title, sub] = MODULE_META[mod] || ['Papato Gestão', 'Papato Tabacaria'];
       document.getElementById('moduleTitle').textContent = title;
       document.getElementById('moduleSubtitle').textContent = sub;
 
+      closeSidebarNow();
       renderAll();
       window.scrollTo(0, 0);
     }
@@ -1005,11 +918,11 @@
     window.addEventListener('resize', () => {
       const sb = document.getElementById('sidebar');
       const bd = document.getElementById('mobileBackdrop');
+      bd.classList.remove('active');
       if (window.innerWidth > 768) {
-        sb?.classList.remove('open');
-        if (sb) sb.style.display = '';
-        bd?.classList.remove('active');
-      } else if (!sb?.classList.contains('open') && sb) {
+        sb.classList.remove('open');
+        sb.style.display = '';
+      } else if (!sb.classList.contains('open')) {
         sb.style.display = 'none';
       }
     });
@@ -1128,7 +1041,6 @@
       `;
 
       document.getElementById('cfgMeta').value = state.metaMensal;
-      updateSmokeButton();
     }
 
     function registrarVendaPDV() {
@@ -1234,7 +1146,6 @@
       state = cloneDefaultState();
       state.pin = pinAtual;
       state.locked = false;
-      state.smokeEnabled = false;
       saveState();
       renderAll();
     }
@@ -1278,14 +1189,10 @@
       const dz = document.getElementById('dropZoneJson');
       if (!dz) return;
       ['dragenter', 'dragover'].forEach(evt => {
-        dz.addEventListener(evt, e => {
-          e.preventDefault();
-        });
+        dz.addEventListener(evt, e => e.preventDefault());
       });
       ['dragleave', 'drop'].forEach(evt => {
-        dz.addEventListener(evt, e => {
-          e.preventDefault();
-        });
+        dz.addEventListener(evt, e => e.preventDefault());
       });
       dz.addEventListener('drop', e => {
         const file = e.dataTransfer?.files?.[0];
@@ -1294,7 +1201,7 @@
     })();
 
     function lockApp() {
-      toggleSidebar(false);
+      closeSidebarNow();
       state.locked = true;
       saveState();
       document.getElementById('lockScreen').classList.add('active');
@@ -1319,24 +1226,6 @@
       } else {
         document.getElementById('pinError').textContent = 'PIN incorreto. Tente novamente.';
       }
-    }
-
-    function updateSmokeButton() {
-      const btn = document.getElementById('smokeBtn');
-      const canvas = document.getElementById('smokeCanvas');
-      if (state.smokeEnabled) {
-        btn.textContent = 'Neblina: ON';
-        canvas.classList.add('smoke-on');
-      } else {
-        btn.textContent = 'Neblina: OFF';
-        canvas.classList.remove('smoke-on');
-      }
-    }
-
-    function toggleSmoke() {
-      state.smokeEnabled = !state.smokeEnabled;
-      saveState();
-      updateSmokeButton();
     }
 
     if (state.locked) {

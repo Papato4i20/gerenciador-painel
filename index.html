@@ -1,7 +1,8 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-PT" translate="no">
 <head>
   <meta charset="UTF-8" />
+  <meta name="google" content="notranslate" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>PAPATO GESTÃO • Tabacaria &amp; Headshop</title>
   <meta name="theme-color" content="#070709" />
@@ -14,9 +15,9 @@
   <style>
     :root {
       --bg-void: #070709;
-      --bg-surface: rgba(16, 15, 20, 0.88);
-      --bg-surface-strong: rgba(12, 11, 15, 0.96);
-      --bg-elevated: rgba(28, 22, 14, 0.9);
+      --bg-surface: rgba(16, 15, 20, 0.92);
+      --bg-surface-strong: rgba(12, 11, 15, 0.98);
+      --bg-elevated: rgba(28, 22, 14, 0.94);
       --gold: #f5b700;
       --gold-bright: #ffd43b;
       --honey: #d98200;
@@ -32,11 +33,13 @@
       --sidebar-w: 256px;
     }
 
-    * {
+    *, *::before, *::after {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
       -webkit-tap-highlight-color: transparent;
+      animation: none !important;
+      transition: none !important;
     }
 
     html, body {
@@ -55,13 +58,12 @@
       height: 100vh;
       z-index: 0;
       pointer-events: none;
-      opacity: 1;
-      filter: blur(18px) contrast(1.12);
-      transition: opacity 0.25s ease;
+      display: none;
     }
 
-    #smokeCanvas.smoke-off {
-      opacity: 0;
+    #smokeCanvas.smoke-on {
+      display: block;
+      opacity: 0.7;
     }
 
     .ambient-overlay {
@@ -70,9 +72,9 @@
       z-index: 1;
       pointer-events: none;
       background:
-        radial-gradient(circle at 78% 22%, rgba(245, 183, 0, 0.11), transparent 46%),
-        radial-gradient(circle at 22% 78%, rgba(217, 130, 0, 0.08), transparent 52%),
-        linear-gradient(180deg, rgba(7, 7, 9, 0.18) 0%, rgba(7, 7, 9, 0.46) 100%);
+        radial-gradient(circle at 78% 22%, rgba(245, 183, 0, 0.1), transparent 46%),
+        radial-gradient(circle at 22% 78%, rgba(217, 130, 0, 0.07), transparent 52%),
+        linear-gradient(180deg, rgba(7, 7, 9, 0.25) 0%, rgba(7, 7, 9, 0.55) 100%);
     }
 
     /* Tela de bloqueio por PIN centralizada */
@@ -86,7 +88,7 @@
       align-items: center;
       justify-content: center;
       padding: 20px;
-      background: rgba(7, 7, 9, 0.96);
+      background: rgba(7, 7, 9, 0.97);
     }
 
     #lockScreen.active {
@@ -101,7 +103,7 @@
       border-radius: var(--radius-lg);
       padding: 28px 24px;
       text-align: center;
-      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.85), 0 0 32px rgba(245, 183, 0, 0.16);
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.85);
     }
 
     .lock-emblem {
@@ -119,7 +121,6 @@
       height: 100%;
       object-fit: contain;
       border-radius: 12px;
-      filter: drop-shadow(0 6px 18px rgba(245, 183, 0, 0.4));
     }
 
     .lock-title {
@@ -141,7 +142,7 @@
       padding: 12px 14px;
       border-radius: var(--radius-md);
       border: 1px solid var(--border-subtle);
-      background: rgba(0, 0, 0, 0.65);
+      background: rgba(0, 0, 0, 0.7);
       color: var(--gold-bright);
       font-size: 1.2rem;
       text-align: center;
@@ -153,7 +154,6 @@
 
     .pin-input:focus {
       border-color: var(--gold);
-      box-shadow: 0 0 0 3px rgba(245, 183, 0, 0.18);
     }
 
     .app-shell {
@@ -203,7 +203,6 @@
       height: 100%;
       object-fit: contain;
       border-radius: 10px;
-      filter: drop-shadow(0 3px 12px rgba(245, 183, 0, 0.38));
     }
 
     .brand-logo-wrap svg {
@@ -245,9 +244,9 @@
       background: transparent;
       border: 1px solid transparent;
       color: var(--text-main);
-      padding: 11px 12px;
+      padding: 12px;
       border-radius: var(--radius-sm);
-      font-size: 0.88rem;
+      font-size: 0.9rem;
       font-weight: 600;
       cursor: pointer;
       display: flex;
@@ -256,17 +255,10 @@
       touch-action: manipulation;
     }
 
-    .nav-btn:hover {
-      background: rgba(245, 183, 0, 0.09);
-      border-color: rgba(245, 183, 0, 0.24);
-      color: var(--gold-bright);
-    }
-
     .nav-btn.active {
-      background: linear-gradient(90deg, rgba(245, 183, 0, 0.24), rgba(217, 130, 0, 0.06));
+      background: rgba(245, 183, 0, 0.22);
       border-color: var(--border-active);
       color: var(--gold-bright);
-      box-shadow: inset 3px 0 0 var(--gold);
     }
 
     .sidebar-footer {
@@ -311,8 +303,8 @@
       border: 1px solid var(--border-subtle);
       color: var(--gold-bright);
       border-radius: var(--radius-sm);
-      padding: 9px 13px;
-      font-size: 1rem;
+      padding: 10px 14px;
+      font-size: 1.05rem;
       cursor: pointer;
       touch-action: manipulation;
     }
@@ -351,24 +343,10 @@
       touch-action: manipulation;
     }
 
-    .btn:active {
-      transform: scale(0.98);
-    }
-
-    .btn:hover {
-      border-color: var(--gold);
-      color: var(--gold-bright);
-    }
-
     .btn-gold {
       background: linear-gradient(135deg, var(--gold-bright), var(--honey));
       color: #09090b;
       border-color: transparent;
-    }
-
-    .btn-gold:hover {
-      filter: brightness(1.07);
-      color: #09090b;
     }
 
     .btn-danger {
@@ -386,12 +364,7 @@
       padding: 14px 16px;
       border-radius: var(--radius-md);
       border: 1px dashed rgba(245, 183, 0, 0.42);
-      background: rgba(10, 9, 13, 0.78);
-    }
-
-    .file-upload-box.dragover {
-      border-color: var(--gold-bright);
-      background: rgba(245, 183, 0, 0.12);
+      background: rgba(10, 9, 13, 0.82);
     }
 
     .file-upload-meta {
@@ -411,7 +384,7 @@
       padding: 14px 16px;
       margin-bottom: 14px;
       border-radius: var(--radius-md);
-      background: linear-gradient(90deg, rgba(245, 183, 0, 0.14), rgba(14, 13, 17, 0.75));
+      background: rgba(245, 183, 0, 0.1);
       border: 1px solid rgba(245, 183, 0, 0.3);
     }
 
@@ -430,7 +403,6 @@
       height: 100%;
       object-fit: contain;
       border-radius: 10px;
-      filter: drop-shadow(0 4px 14px rgba(245, 183, 0, 0.42));
     }
 
     .site-emblem-p svg {
@@ -542,7 +514,7 @@
 
     input, select, textarea {
       width: 100%;
-      background: rgba(8, 8, 11, 0.82);
+      background: rgba(8, 8, 11, 0.86);
       border: 1px solid var(--border-subtle);
       border-radius: var(--radius-sm);
       padding: 10px 11px;
@@ -571,7 +543,7 @@
       display: none;
       position: fixed;
       inset: 0;
-      background: rgba(0, 0, 0, 0.65);
+      background: rgba(0, 0, 0, 0.72);
       z-index: 25;
       pointer-events: none;
     }
@@ -596,7 +568,7 @@
         position: fixed;
         left: 0;
         top: 0;
-        width: min(82vw, 280px);
+        width: min(84vw, 290px);
         height: 100vh;
         z-index: 40;
       }
@@ -674,7 +646,7 @@
 
       <div class="sidebar-footer">
         Papato Tabacaria • 4:20 Ritual<br/>
-        Salve na Tela de Início do iPhone
+        Salve no Ecrã Principal do iPhone
       </div>
     </aside>
 
@@ -689,7 +661,7 @@
         </div>
 
         <div class="topbar-actions">
-          <button type="button" id="smokeBtn" class="btn" onclick="toggleSmoke()">Neblina: ON</button>
+          <button type="button" id="smokeBtn" class="btn" onclick="toggleSmoke()">Neblina: OFF</button>
           <button type="button" class="btn" onclick="exportBackup()">Backup JSON</button>
           <button type="button" class="btn btn-gold" onclick="lockApp()">Sair com segurança</button>
         </div>
@@ -879,7 +851,7 @@
           </div>
 
           <p style="font-size:0.86rem;line-height:1.5;color:var(--text-muted);">
-            Restaure ou importe um arquivo <strong>.json</strong> de backup para sincronizar seus dados entre sessões e dispositivos.
+            Restaure ou importe um ficheiro <strong>.json</strong> de cópia de segurança para sincronizar os seus dados entre sessões e dispositivos.
           </p>
 
           <div id="dropZoneJson" class="file-upload-box">
@@ -888,7 +860,7 @@
               Selecionar Backup .JSON
             </button>
             <div class="file-upload-meta">
-              Arquivo atual: <span id="selectedFileName" class="file-upload-name">Nenhum arquivo selecionado</span>
+              Ficheiro atual: <span id="selectedFileName" class="file-upload-name">Nenhum ficheiro selecionado</span>
             </div>
           </div>
         </div>
@@ -906,12 +878,12 @@
           <div class="panel-title">11. Configurações do Sistema</div>
           <div class="form-grid">
             <input type="number" id="cfgMeta" placeholder="Meta mensal (R$)" />
-            <input type="text" id="cfgPin" placeholder="Novo PIN de administrador (ex: 9213)" />
-            <button type="button" class="btn btn-gold" onclick="salvarConfig()">Salvar Configurações</button>
+            <input type="text" id="cfgPin" placeholder="Novo PIN de administrador" />
+            <button type="button" class="btn btn-gold" onclick="salvarConfig()">Guardar Configurações</button>
           </div>
           <div id="cfgFeedback" style="font-size:0.84rem;color:var(--gold-bright);margin-bottom:10px;"></div>
           <div style="margin-top:10px;">
-            <button type="button" class="btn btn-danger" onclick="resetarDados()">Resetar Dados de Demonstração</button>
+            <button type="button" class="btn btn-danger" onclick="resetarDados()">Repor Dados de Demonstração</button>
           </div>
         </div>
       </section>
@@ -919,13 +891,13 @@
   </div>
 
   <script>
-    const STORAGE_KEY = 'papato_gestao_state_v2';
+    const STORAGE_KEY = 'papato_gestao_state_v3';
     const ADMIN_PIN = '9213';
 
     const DEFAULT_STATE = {
       pin: ADMIN_PIN,
       locked: false,
-      smokeEnabled: true,
+      smokeEnabled: false,
       metaMensal: 6000,
       produtos: [
         { id: 1, nome: 'Seda Sadhu King Size', categoria: 'Sedas', custo: 1.1, preco: 3.5, estoque: 45, minimo: 10 },
@@ -963,7 +935,8 @@
           ...cloneDefaultState(),
           ...parsed,
           pin: parsed.pin ? String(parsed.pin).trim() : ADMIN_PIN,
-          locked: Boolean(parsed.locked)
+          locked: Boolean(parsed.locked),
+          smokeEnabled: Boolean(parsed.smokeEnabled)
         };
       } catch {
         return cloneDefaultState();
@@ -978,19 +951,37 @@
 
     const MODULE_META = {
       dashboard: ['1. Dashboard — Visão geral', 'Papato Tabacaria • Reino da Brisa'],
-      pdv: ['2. Caixa e PDV', 'Registro rápido de vendas no balcão ou delivery'],
-      financeiro: ['3. Financeiro', 'Controle de entradas, despesas e fluxo'],
+      pdv: ['2. Caixa e PDV', 'Registo rápido de vendas no balcão ou delivery'],
+      financeiro: ['3. Financeiro', 'Controlo de entradas, despesas e fluxo'],
       estoque: ['4. Estoque', 'Acompanhamento de quantidades e estoque mínimo'],
       produtos: ['5. Produtos e Preços', 'Catálogo, custos unitários e margem'],
       vendas: ['6. Vendas e Pedidos', 'Histórico completo de movimentações'],
       clientes: ['7. Clientes — CRM', 'Base de clientes e preferências de sessão'],
       fornecedores: ['8. Fornecedores', 'Parceiros de reposição e suprimentos'],
-      integracao: ['9. Integração Site', 'Conexão com o catálogo e backup de dados'],
+      integracao: ['9. Integração Site', 'Ligação com o catálogo e cópia de segurança'],
       relatorios: ['10. Relatórios', 'Resumo consolidado da operação'],
       configuracoes: ['11. Configurações', 'Metas mensais, PIN de segurança e dados']
     };
 
+    function toggleSidebar(force) {
+      const sb = document.getElementById('sidebar');
+      const bd = document.getElementById('mobileBackdrop');
+      const isMobile = window.innerWidth <= 768;
+      if (!isMobile) {
+        sb.classList.remove('open');
+        sb.style.display = '';
+        bd.classList.remove('active');
+        return;
+      }
+      const open = typeof force === 'boolean' ? force : !sb.classList.contains('open');
+      sb.classList.toggle('open', open);
+      sb.style.display = open ? 'flex' : 'none';
+      bd.classList.toggle('active', open);
+    }
+
     function switchModule(mod, btnEl) {
+      toggleSidebar(false);
+
       document.querySelectorAll('.module-section').forEach(s => s.classList.remove('active'));
       document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
 
@@ -1008,27 +999,18 @@
       document.getElementById('moduleSubtitle').textContent = sub;
 
       renderAll();
-      toggleSidebar(false);
-    }
-
-    function toggleSidebar(force) {
-      const sb = document.getElementById('sidebar');
-      const bd = document.getElementById('mobileBackdrop');
-      const isMobile = window.innerWidth <= 768;
-      if (!isMobile) {
-        sb.classList.remove('open');
-        bd.classList.remove('active');
-        return;
-      }
-      const open = typeof force === 'boolean' ? force : !sb.classList.contains('open');
-      sb.classList.toggle('open', open);
-      bd.classList.toggle('active', open);
+      window.scrollTo(0, 0);
     }
 
     window.addEventListener('resize', () => {
+      const sb = document.getElementById('sidebar');
+      const bd = document.getElementById('mobileBackdrop');
       if (window.innerWidth > 768) {
-        document.getElementById('sidebar')?.classList.remove('open');
-        document.getElementById('mobileBackdrop')?.classList.remove('active');
+        sb?.classList.remove('open');
+        if (sb) sb.style.display = '';
+        bd?.classList.remove('active');
+      } else if (!sb?.classList.contains('open') && sb) {
+        sb.style.display = 'none';
       }
     });
 
@@ -1076,7 +1058,7 @@
           <td>${item.qtd}</td>
           <td>${fmtBRL(item.receita)}</td>
         </tr>
-      `).join('') || '<tr><td colspan="3">Sem vendas registradas ainda.</td></tr>';
+      `).join('') || '<tr><td colspan="3">Sem vendas registadas ainda.</td></tr>';
 
       const pctMeta = state.metaMensal > 0 ? Math.round(((faturamento + outrasEntradas) / state.metaMensal) * 100) : 0;
       document.getElementById('metaResumo').innerHTML =
@@ -1163,7 +1145,7 @@
 
       state.vendas.push({
         id: Date.now(),
-        data: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+        data: new Date().toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit' }),
         cliente: `${cliente} (${pag})`,
         produtoId: prod.id,
         nomeProduto: prod.nome,
@@ -1242,7 +1224,7 @@
       if (meta > 0) state.metaMensal = meta;
       if (novoPin.length >= 4) state.pin = novoPin;
       document.getElementById('cfgPin').value = '';
-      document.getElementById('cfgFeedback').textContent = 'Configurações salvas com sucesso!';
+      document.getElementById('cfgFeedback').textContent = 'Configurações guardadas com sucesso!';
       saveState();
       renderAll();
     }
@@ -1252,6 +1234,7 @@
       state = cloneDefaultState();
       state.pin = pinAtual;
       state.locked = false;
+      state.smokeEnabled = false;
       saveState();
       renderAll();
     }
@@ -1297,13 +1280,11 @@
       ['dragenter', 'dragover'].forEach(evt => {
         dz.addEventListener(evt, e => {
           e.preventDefault();
-          dz.classList.add('dragover');
         });
       });
       ['dragleave', 'drop'].forEach(evt => {
         dz.addEventListener(evt, e => {
           e.preventDefault();
-          dz.classList.remove('dragover');
         });
       });
       dz.addEventListener('drop', e => {
@@ -1345,10 +1326,10 @@
       const canvas = document.getElementById('smokeCanvas');
       if (state.smokeEnabled) {
         btn.textContent = 'Neblina: ON';
-        canvas.classList.remove('smoke-off');
+        canvas.classList.add('smoke-on');
       } else {
         btn.textContent = 'Neblina: OFF';
-        canvas.classList.add('smoke-off');
+        canvas.classList.remove('smoke-on');
       }
     }
 
@@ -1357,85 +1338,6 @@
       saveState();
       updateSmokeButton();
     }
-
-    (function initSmoke() {
-      const canvas = document.getElementById('smokeCanvas');
-      const ctx = canvas.getContext('2d');
-      let w, h, clouds = [], t = 0;
-
-      function resize() {
-        w = canvas.width = window.innerWidth;
-        h = canvas.height = window.innerHeight;
-      }
-
-      function createClouds() {
-        const count = 26;
-        clouds = Array.from({ length: count }, (_, i) => ({
-          x: Math.random() * w,
-          y: Math.random() * h,
-          rx: 180 + Math.random() * 240,
-          ry: 130 + Math.random() * 180,
-          vx: (Math.random() - 0.5) * 0.65,
-          vy: -0.25 - Math.random() * 0.45,
-          phase: Math.random() * Math.PI * 2,
-          alpha: 0.08 + Math.random() * 0.09,
-          tone: i % 5 === 0 ? 'gold' : (i % 2 === 0 ? 'smoke' : 'ash')
-        }));
-      }
-
-      function draw() {
-        t += 0.012;
-        ctx.clearRect(0, 0, w, h);
-
-        if (state.smokeEnabled) {
-          for (const c of clouds) {
-            c.x += c.vx + Math.sin(t + c.phase) * 0.35;
-            c.y += c.vy;
-
-            if (c.y < -c.ry * 1.2) {
-              c.y = h + c.ry * 1.1;
-              c.x = Math.random() * w;
-            }
-            if (c.x < -c.rx * 1.2) c.x = w + c.rx;
-            if (c.x > w + c.rx * 1.2) c.x = -c.rx;
-
-            const pulse = c.alpha * (0.85 + 0.25 * Math.sin(t * 1.4 + c.phase));
-            const maxR = Math.max(c.rx, c.ry);
-            const grad = ctx.createRadialGradient(c.x, c.y, maxR * 0.06, c.x, c.y, maxR);
-
-            if (c.tone === 'gold') {
-              grad.addColorStop(0, `rgba(245, 183, 0, ${pulse * 0.78})`);
-              grad.addColorStop(0.5, `rgba(217, 130, 0, ${pulse * 0.35})`);
-              grad.addColorStop(1, 'rgba(217, 130, 0, 0)');
-            } else if (c.tone === 'smoke') {
-              grad.addColorStop(0, `rgba(225, 232, 240, ${pulse})`);
-              grad.addColorStop(0.55, `rgba(155, 165, 180, ${pulse * 0.45})`);
-              grad.addColorStop(1, 'rgba(155, 165, 180, 0)');
-            } else {
-              grad.addColorStop(0, `rgba(130, 138, 152, ${pulse * 0.85})`);
-              grad.addColorStop(0.6, `rgba(75, 82, 95, ${pulse * 0.38})`);
-              grad.addColorStop(1, 'rgba(75, 82, 95, 0)');
-            }
-
-            ctx.save();
-            ctx.translate(c.x, c.y);
-            ctx.scale(1, c.ry / c.rx);
-            ctx.fillStyle = grad;
-            ctx.beginPath();
-            ctx.arc(0, 0, c.rx, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.restore();
-          }
-        }
-
-        requestAnimationFrame(draw);
-      }
-
-      window.addEventListener('resize', () => { resize(); createClouds(); });
-      resize();
-      createClouds();
-      draw();
-    })();
 
     if (state.locked) {
       document.getElementById('lockScreen').classList.add('active');
